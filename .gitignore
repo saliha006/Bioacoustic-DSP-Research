@@ -15,6 +15,12 @@ __pycache__/
 # --- BirdNET model checkpoints (downloaded, ~224 MB) ---
 **/checkpoints/
 
+# --- Intermediate per-chunk BirdNET outputs (regenerable working dirs) ---
+**/birdnet_results/
+**/birdnet_results_site5/
+**/birdnet_results_latlon/
+**/birdnet_results_1hr/
+
 # --- Backups & logs ---
 **/_pre-recombine-backup/
 *.log

@@ -1,0 +1,37 @@
+Scientific name,Common name,Detections,Max confidence,Mean confidence,First start (s),Last end (s)
+Phylloscopus collybita,Common Chiffchaff,333,0.9940,0.7179,105,8139
+Chloris chloris,European Greenfinch,198,0.9939,0.6283,0,7473
+Aegithalos caudatus,Long-tailed Tit,74,0.9989,0.8088,3915,5733
+Pica pica,Eurasian Magpie,52,0.9874,0.6602,279,8637
+Turdus philomelos,Song Thrush,30,0.9761,0.5350,3168,13830
+Erithacus rubecula,European Robin,30,0.9022,0.5064,2985,11985
+Corvus monedula,Eurasian Jackdaw,19,0.8786,0.4426,189,7233
+Turdus iliacus,Redwing,11,0.8255,0.4543,3474,9096
+Columba palumbus,Common Wood-Pigeon,9,0.9994,0.9399,4269,6333
+Cyanistes caeruleus,Eurasian Blue Tit,9,0.9434,0.5196,2343,9834
+Parus major,Great Tit,9,0.8477,0.5570,966,2064
+Larus argentatus,Herring Gull,8,0.8617,0.6002,5133,9126
+Passer domesticus,House Sparrow,8,0.4964,0.3665,5745,8211
+Carduelis carduelis,European Goldfinch,6,0.9207,0.6196,2490,6966
+Turdus merula,Eurasian Blackbird,5,0.8800,0.6581,1014,9852
+Fulica atra,Eurasian Coot,5,0.7268,0.4457,3798,15189
+Pyrrhula pyrrhula,Eurasian Bullfinch,4,0.7272,0.4269,894,14454
+Prunella modularis,Dunnock,4,0.5716,0.4511,5433,13773
+Pluvialis apricaria,European Golden-Plover,4,0.4984,0.3628,8400,9696
+Corvus corone,Carrion Crow,4,0.4460,0.3659,9372,16518
+Branta canadensis,Canada Goose,3,0.9251,0.6902,9576,9585
+Troglodytes troglodytes,Eurasian Wren,2,0.7877,0.5369,4869,7308
+Columba livia,Rock Pigeon,2,0.7190,0.6497,6210,17526
+Gallinula chloropus,Eurasian Moorhen,2,0.4317,0.3466,6147,8826
+Streptopelia decaocto,Eurasian Collared-Dove,2,0.2712,0.2694,4359,4365
+Numenius arquata,Eurasian Curlew,1,0.8875,0.8875,270,273
+Motacilla cinerea,Gray Wagtail,1,0.7816,0.7816,3492,3495
+Calidris alpina,Dunlin,1,0.6269,0.6269,7281,7284
+Regulus regulus,Goldcrest,1,0.4651,0.4651,6285,6288
+Hirundo rustica,Barn Swallow,1,0.4631,0.4631,1020,1023
+Haematopus ostralegus,Eurasian Oystercatcher,1,0.4026,0.4026,10995,10998
+Emberiza citrinella,Yellowhammer,1,0.3894,0.3894,9831,9834
+Dendrocopos major,Great Spotted Woodpecker,1,0.3595,0.3595,5754,5757
+Anas crecca,Green-winged Teal,1,0.3497,0.3497,13587,13590
+Spinus spinus,Eurasian Siskin,1,0.3321,0.3321,5511,5514
+Mareca strepera,Gadwall,1,0.2659,0.2659,4305,4308

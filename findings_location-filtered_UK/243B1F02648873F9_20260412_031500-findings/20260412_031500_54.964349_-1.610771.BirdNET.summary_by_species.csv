@@ -1,0 +1,46 @@
+Scientific name,Common name,Detections,Max confidence,Mean confidence,First start (s),Last end (s)
+Columba palumbus,Common Wood-Pigeon,1129,0.9951,0.6700,3228,25122
+Troglodytes troglodytes,Eurasian Wren,743,0.9995,0.6636,525,25179
+Turdus merula,Eurasian Blackbird,645,0.9980,0.4968,1245,23277
+Parus major,Great Tit,413,0.9970,0.5876,5712,25170
+Certhia familiaris,Eurasian Treecreeper,299,0.9931,0.5371,2709,24663
+Cyanistes caeruleus,Eurasian Blue Tit,190,0.9987,0.5619,5097,25113
+Erithacus rubecula,European Robin,187,0.9804,0.5343,150,22284
+Regulus regulus,Goldcrest,124,0.9245,0.4742,10041,23589
+Phylloscopus collybita,Common Chiffchaff,108,0.9913,0.5159,12996,22668
+Larus argentatus,Herring Gull,99,0.9437,0.5356,546,23655
+Corvus corone,Carrion Crow,84,0.8974,0.4578,8400,24171
+Corvus cornix,Hooded Crow,75,0.9536,0.5258,8400,24225
+Columba oenas,Stock Dove,59,0.9547,0.4473,3222,22593
+Aegithalos caudatus,Long-tailed Tit,44,0.7760,0.4205,8643,23169
+Carduelis carduelis,European Goldfinch,38,0.9637,0.5710,12234,24960
+Turdus viscivorus,Mistle Thrush,32,0.9489,0.5080,1326,13956
+Pica pica,Eurasian Magpie,31,0.9599,0.6645,10269,22974
+Periparus ater,Coal Tit,30,0.8929,0.4561,11184,25140
+Streptopelia decaocto,Eurasian Collared-Dove,30,0.7972,0.4501,3405,24366
+Turdus iliacus,Redwing,27,0.9272,0.4980,219,24771
+Larus fuscus,Lesser Black-backed Gull,16,0.6769,0.4530,7371,23655
+Gallinula chloropus,Eurasian Moorhen,10,0.9055,0.5168,276,5388
+Sylvia atricapilla,Eurasian Blackcap,10,0.8911,0.6863,11463,11679
+Columba livia,Rock Pigeon,8,0.3649,0.2946,3246,23865
+Turdus philomelos,Song Thrush,7,0.5375,0.3645,4380,24036
+Picus viridis,Eurasian Green Woodpecker,7,0.5355,0.3314,5205,22782
+Tyto alba,Barn Owl,6,0.4741,0.3318,2052,6681
+Spinus spinus,Eurasian Siskin,4,0.8423,0.5456,15651,15663
+Buteo buteo,Common Buzzard,3,0.7859,0.5690,4488,13578
+Numenius arquata,Eurasian Curlew,3,0.4368,0.3567,84,5139
+Fulica atra,Eurasian Coot,3,0.2845,0.2697,648,16512
+Prunella modularis,Dunnock,2,0.5458,0.4236,5994,6882
+Corvus monedula,Eurasian Jackdaw,2,0.5407,0.4582,13098,13104
+Dendrocopos major,Great Spotted Woodpecker,2,0.4810,0.4023,12786,12993
+Ardea cinerea,Gray Heron,2,0.3488,0.3341,8700,19494
+Branta leucopsis,Barnacle Goose,1,0.8186,0.8186,23682,23685
+Anser albifrons,Greater White-fronted Goose,1,0.5760,0.5760,39,42
+Turdus pilaris,Fieldfare,1,0.4491,0.4491,15477,15480
+Pyrrhula pyrrhula,Eurasian Bullfinch,1,0.3941,0.3941,17277,17280
+Tringa totanus,Common Redshank,1,0.3787,0.3787,13902,13905
+Chroicocephalus ridibundus,Black-headed Gull,1,0.3625,0.3625,855,858
+Rallus aquaticus,Water Rail,1,0.3452,0.3452,4905,4908
+Branta canadensis,Canada Goose,1,0.3229,0.3229,16296,16299
+Pluvialis apricaria,European Golden-Plover,1,0.2849,0.2849,3819,3822
+Anas crecca,Green-winged Teal,1,0.2538,0.2538,888,891
