@@ -1,0 +1,104 @@
+Scientific name,Common name,Detections,Max confidence,Mean confidence,First start (s),Last end (s)
+Engine,Engine,596,0.9726,0.4619,546,17424
+Phylloscopus collybita,Common Chiffchaff,333,0.9940,0.7179,105,8139
+Chloris chloris,European Greenfinch,198,0.9939,0.6283,0,7473
+Aegithalos caudatus,Long-tailed Tit,74,0.9989,0.8088,3915,5733
+Pica pica,Eurasian Magpie,52,0.9874,0.6602,279,8637
+Turdus philomelos,Song Thrush,30,0.9761,0.5350,3168,13830
+Erithacus rubecula,European Robin,30,0.9022,0.5064,2985,11985
+Siren,Siren,24,0.9937,0.7479,2454,10776
+Corvus monedula,Eurasian Jackdaw,19,0.8786,0.4426,189,7233
+Turdus iliacus,Redwing,11,0.8255,0.4543,3474,9096
+Phylloscopus ibericus,Iberian Chiffchaff,10,0.7910,0.4506,1128,4701
+Columba palumbus,Common Wood-Pigeon,9,0.9994,0.9399,4269,6333
+Cyanistes caeruleus,Eurasian Blue Tit,9,0.9434,0.5196,2343,9834
+Parus major,Great Tit,9,0.8477,0.5570,966,2064
+Larus argentatus,Herring Gull,8,0.8617,0.6002,5133,9126
+Passer domesticus,House Sparrow,8,0.4964,0.3665,5745,8211
+Human vocal,Human vocal,8,0.4343,0.3279,4437,15924
+Sayornis saya,Say's Phoebe,7,0.9797,0.7022,8649,15915
+Ixoreus naevius,Varied Thrush,7,0.8548,0.4344,138,7440
+Carduelis carduelis,European Goldfinch,6,0.9207,0.6196,2490,6966
+Turdus merula,Eurasian Blackbird,5,0.8800,0.6581,1014,9852
+Fulica atra,Eurasian Coot,5,0.7268,0.4457,3798,15189
+Pyrrhula pyrrhula,Eurasian Bullfinch,4,0.7272,0.4269,894,14454
+Catamenia inornata,Plain-colored Seedeater,4,0.6498,0.4557,1323,7452
+Prunella modularis,Dunnock,4,0.5716,0.4511,5433,13773
+Pica hudsonia,Black-billed Magpie,4,0.5116,0.3740,4842,15933
+Pluvialis apricaria,European Golden-Plover,4,0.4984,0.3628,8400,9696
+Haemorhous purpureus,Purple Finch,4,0.4701,0.3792,5829,9825
+Corvus corone,Carrion Crow,4,0.4460,0.3659,9372,16518
+Calypte anna,Anna's Hummingbird,4,0.4323,0.3916,1314,12933
+Branta canadensis,Canada Goose,3,0.9251,0.6902,9576,9585
+Anthus trivialis,Tree Pipit,3,0.6297,0.4264,14907,17448
+Spizella pusilla,Field Sparrow,3,0.5822,0.4315,2643,2664
+Troglodytes troglodytes,Eurasian Wren,2,0.7877,0.5369,4869,7308
+Selasphorus platycercus,Broad-tailed Hummingbird,2,0.7803,0.5908,351,17316
+Psittacula krameri,Rose-ringed Parakeet,2,0.7702,0.6419,5622,6207
+Columba livia,Rock Pigeon,2,0.7190,0.6497,6210,17526
+Scolopax minor,American Woodcock,2,0.7039,0.5429,5229,9549
+Dryobates borealis,Red-cockaded Woodpecker,2,0.5400,0.4550,1401,4854
+Tympanuchus cupido,Greater Prairie-Chicken,2,0.5322,0.4105,2400,8874
+Cyanocitta stelleri,Steller's Jay,2,0.5198,0.4105,13308,14190
+Auriparus flaviceps,Verdin,2,0.4634,0.4167,1566,3762
+Phylloscopus sindianus,Mountain Chiffchaff,2,0.4384,0.3762,2388,3861
+Gallinula chloropus,Eurasian Moorhen,2,0.4317,0.3466,6147,8826
+Psaltriparus minimus,Bushtit,2,0.4004,0.3427,1947,13653
+Chordeiles minor,Common Nighthawk,2,0.3679,0.3577,1284,6741
+Melozone crissalis,California Towhee,2,0.3475,0.3171,16968,17856
+Larus occidentalis,Western Gull,2,0.3261,0.3084,3555,6912
+Spinus tristis,American Goldfinch,2,0.3241,0.2982,2994,3225
+Buteo lineatus,Red-shouldered Hawk,2,0.3159,0.2898,7200,9753
+Circus hudsonius,Northern Harrier,2,0.2868,0.2750,1914,5622
+Streptopelia decaocto,Eurasian Collared-Dove,2,0.2712,0.2694,4359,4365
+Fringilla montifringilla,Brambling,2,0.2578,0.2541,1158,6231
+Streptopelia turtur,European Turtle-Dove,1,0.9371,0.9371,5712,5715
+Numenius arquata,Eurasian Curlew,1,0.8875,0.8875,270,273
+Strix varia,Barred Owl,1,0.8325,0.8325,4374,4377
+Motacilla cinerea,Gray Wagtail,1,0.7816,0.7816,3492,3495
+Sitta canadensis,Red-breasted Nuthatch,1,0.6725,0.6725,7185,7188
+Cyanopica cooki,Iberian Magpie,1,0.6428,0.6428,7221,7224
+Phoenicurus ochruros,Black Redstart,1,0.6362,0.6362,5472,5475
+Calidris alpina,Dunlin,1,0.6269,0.6269,7281,7284
+Megaceryle alcyon,Belted Kingfisher,1,0.6027,0.6027,2820,2823
+Lophophanes cristatus,Crested Tit,1,0.5402,0.5402,5013,5016
+Acanthis flammea,Common Redpoll,1,0.5191,0.5191,1116,1119
+Coccothraustes vespertinus,Evening Grosbeak,1,0.4891,0.4891,1944,1947
+Setophaga palmarum,Palm Warbler,1,0.4831,0.4831,3726,3729
+Polioptila californica,California Gnatcatcher,1,0.4811,0.4811,855,858
+Bubo virginianus,Great Horned Owl,1,0.4774,0.4774,16278,16281
+Regulus regulus,Goldcrest,1,0.4651,0.4651,6285,6288
+Hirundo rustica,Barn Swallow,1,0.4631,0.4631,1020,1023
+Botaurus stellaris,Great Bittern,1,0.4627,0.4627,13860,13863
+Haematopus ostralegus,Eurasian Oystercatcher,1,0.4026,0.4026,10995,10998
+Gymnorhina tibicen,Australian Magpie,1,0.3984,0.3984,2751,2754
+Charadrius morinellus,Eurasian Dotterel,1,0.3907,0.3907,11007,11010
+Emberiza citrinella,Yellowhammer,1,0.3894,0.3894,9831,9834
+Upucerthia saturatior,Patagonian Forest Earthcreeper,1,0.3788,0.3788,3597,3599.98
+Locustella luscinioides,Savi's Warbler,1,0.3739,0.3739,1353,1356
+Coccothraustes coccothraustes,Hawfinch,1,0.3731,0.3731,4620,4623
+Molothrus ater,Brown-headed Cowbird,1,0.3697,0.3697,717,720
+Tringa melanoleuca,Greater Yellowlegs,1,0.3669,0.3669,141,144
+Dendrocopos major,Great Spotted Woodpecker,1,0.3595,0.3595,5754,5757
+Loxia leucoptera,White-winged Crossbill,1,0.3541,0.3541,2529,2532
+Human non-vocal,Human non-vocal,1,0.3499,0.3499,6414,6417
+Anas crecca,Green-winged Teal,1,0.3497,0.3497,13587,13590
+Branta hutchinsii,Cackling Goose,1,0.3478,0.3478,4944,4947
+Sitta pygmaea,Pygmy Nuthatch,1,0.3424,0.3424,2160,2163
+Larus michahellis,Yellow-legged Gull,1,0.3329,0.3329,9123,9126
+Spinus spinus,Eurasian Siskin,1,0.3321,0.3321,5511,5514
+Bombycilla garrulus,Bohemian Waxwing,1,0.3265,0.3265,3273,3276
+Poecile atricapillus,Black-capped Chickadee,1,0.3206,0.3206,4098,4101
+Porzana carolina,Sora,1,0.3175,0.3175,10416,10419
+Aix galericulata,Mandarin Duck,1,0.3092,0.3092,17331,17334
+Scytalopus perijanus,Perija Tapaculo,1,0.3058,0.3058,2898,2901
+Zenaida macroura,Mourning Dove,1,0.2964,0.2964,15402,15405
+Dog,Dog,1,0.2913,0.2913,10140,10143
+Zosterops simplex,Swinhoe's White-eye,1,0.2811,0.2811,2421,2424
+Phoenicurus phoenicurus,Common Redstart,1,0.2767,0.2767,8130,8133
+Emberiza hortulana,Ortolan Bunting,1,0.2694,0.2694,9675,9678
+Mareca strepera,Gadwall,1,0.2659,0.2659,4305,4308
+Aegithalos glaucogularis,Silver-throated Tit,1,0.2594,0.2594,4872,4875
+Passerculus sandwichensis,Savannah Sparrow,1,0.2549,0.2549,5028,5031
+Zonotrichia leucophrys,White-crowned Sparrow,1,0.2529,0.2529,8856,8859
+Progne subis,Purple Martin,1,0.2524,0.2524,2361,2364

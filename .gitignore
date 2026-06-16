@@ -1,0 +1,24 @@
+# --- Audio recordings & intermediate chunks (far too large for GitHub) ---
+*.WAV
+*.wav
+Recordings/
+**/Extracted chunks/
+**/chunks/
+birdnet_work*/
+
+# --- Python virtual environments (huge, machine-specific) ---
+.venv*/
+**/.venv*/
+__pycache__/
+*.pyc
+
+# --- BirdNET model checkpoints (downloaded, ~224 MB) ---
+**/checkpoints/
+
+# --- Backups & logs ---
+**/_pre-recombine-backup/
+*.log
+
+# --- OS cruft ---
+Thumbs.db
+.DS_Store

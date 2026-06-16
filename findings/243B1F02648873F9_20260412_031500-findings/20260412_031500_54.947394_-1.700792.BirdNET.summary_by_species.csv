@@ -1,0 +1,151 @@
+Scientific name,Common name,Detections,Max confidence,Mean confidence,First start (s),Last end (s)
+Columba palumbus,Common Wood-Pigeon,1129,0.9951,0.6700,3228.064,25122.064
+Troglodytes troglodytes,Eurasian Wren,743,0.9995,0.6636,525,25179.064
+Turdus merula,Eurasian Blackbird,645,0.9980,0.4968,1245.043,23277.043
+Parus major,Great Tit,413,0.9970,0.5876,5712.064,25170.064
+Certhia familiaris,Eurasian Treecreeper,299,0.9931,0.5371,2709,24663.064
+Cyanistes caeruleus,Eurasian Blue Tit,190,0.9987,0.5619,5097,25113.064
+Erithacus rubecula,European Robin,187,0.9804,0.5343,150,22284.064
+Regulus regulus,Goldcrest,124,0.9245,0.4742,10041,23589.021
+Phylloscopus collybita,Common Chiffchaff,108,0.9913,0.5159,12996.064,22668.064
+Larus argentatus,Herring Gull,99,0.9437,0.5356,546,23655.021
+Corvus corone,Carrion Crow,84,0.8974,0.4578,8400.043,24171
+Corvus cornix,Hooded Crow,75,0.9536,0.5258,8400.043,24225
+Certhia americana,Brown Creeper,71,0.8943,0.4138,3861.043,24660.064
+Columba oenas,Stock Dove,59,0.9547,0.4473,3222.064,22593.064
+Aegithalos caudatus,Long-tailed Tit,44,0.7760,0.4205,8643.043,23169.043
+Larus michahellis,Yellow-legged Gull,39,0.8885,0.4604,804.064,23655.021
+Carduelis carduelis,European Goldfinch,38,0.9637,0.5710,12234,24960.064
+Turdus viscivorus,Mistle Thrush,32,0.9489,0.5080,1326.043,13956.021
+Pica pica,Eurasian Magpie,31,0.9599,0.6645,10269.064,22974.043
+Siren,Siren,30,0.9871,0.5202,17622.064,24882.064
+Periparus ater,Coal Tit,30,0.8929,0.4561,11184.043,25140.064
+Streptopelia decaocto,Eurasian Collared-Dove,30,0.7972,0.4501,3405.064,24366
+Regulus ignicapilla,Common Firecrest,29,0.8009,0.3911,5115,21678
+Turdus iliacus,Redwing,27,0.9272,0.4980,219,24771.064
+Human vocal,Human vocal,23,0.9177,0.4576,45,23862.021
+Engine,Engine,19,0.8973,0.4097,9591.021,23820.021
+Regulus satrapa,Golden-crowned Kinglet,19,0.5588,0.3534,9978,24594
+Accipiter gentilis,Northern Goshawk,18,0.8683,0.5001,3633.043,18261.043
+Larus fuscus,Lesser Black-backed Gull,16,0.6769,0.4530,7371,23655.021
+Streptopelia orientalis,Oriental Turtle-Dove,16,0.5945,0.3586,8229.064,20937.043
+Ramphastos ambiguus,Yellow-throated Toucan,13,0.8945,0.4303,6987.021,15705.043
+Hydrobates leucorhous,Leach's Storm-Petrel,12,0.7307,0.4607,762.064,6930.021
+Gallinula chloropus,Eurasian Moorhen,10,0.9055,0.5168,276,5388
+Sylvia atricapilla,Eurasian Blackcap,10,0.8911,0.6863,11463.021,11679.021
+Euphonia affinis,Scrub Euphonia,9,0.9778,0.6366,12210,24804.064
+Muscicapa striata,Spotted Flycatcher,9,0.9286,0.4503,3573.064,8208.064
+Coccothraustes coccothraustes,Hawfinch,9,0.7758,0.4400,168,21786
+Strix aluco,Tawny Owl,9,0.5536,0.3749,75,20763.043
+Bubo bubo,Eurasian Eagle-Owl,8,0.7017,0.4298,510,16308.021
+Columba livia,Rock Pigeon,8,0.3649,0.2946,3246.064,23865.021
+Picus canus,Gray-headed Woodpecker,7,0.6022,0.3976,6804.021,23994.021
+Turdus philomelos,Song Thrush,7,0.5375,0.3645,4380.021,24036
+Picus viridis,Eurasian Green Woodpecker,7,0.5355,0.3314,5205,22782.064
+Botaurus stellaris,Great Bittern,6,0.6247,0.3841,2631,22485.064
+Tyto alba,Barn Owl,6,0.4741,0.3318,2052.021,6681.021
+Cyanistes teneriffae,African Blue Tit,5,0.7444,0.5903,11727.021,11742.021
+Porzana porzana,Spotted Crake,5,0.4355,0.3581,5085,22149
+Chrysolophus amherstiae,Lady Amherst's Pheasant,5,0.3510,0.3046,8469.043,18942.021
+Certhia brachydactyla,Short-toed Treecreeper,5,0.3240,0.2980,3591.064,17703.064
+Spinus spinus,Eurasian Siskin,4,0.8423,0.5456,15651.043,15663.043
+Lophophanes cristatus,Crested Tit,4,0.7403,0.3819,12012,20949.043
+Bycanistes brevis,Silvery-cheeked Hornbill,4,0.6477,0.4642,7911.064,8037.064
+Phylloscopus sibilatrix,Wood Warbler,4,0.5337,0.3421,1083.064,21519.021
+Poecile atricapillus,Black-capped Chickadee,4,0.5237,0.3888,18804.021,24669.064
+Bombycilla cedrorum,Cedar Waxwing,4,0.4602,0.3803,15003.064,22197
+Megapodius cumingii,Tabon Scrubfowl,4,0.4574,0.3423,10839.043,19269
+Poecile rufescens,Chestnut-backed Chickadee,4,0.3258,0.3012,19551,24669.064
+Buteo buteo,Common Buzzard,3,0.7859,0.5690,4488.021,13578.043
+Megascops asio,Eastern Screech-Owl,3,0.6093,0.4135,22959.043,24855.064
+Tetrastes bonasia,Hazel Grouse,3,0.5267,0.3891,7812.064,13221.043
+Anthus trivialis,Tree Pipit,3,0.4587,0.3971,15045.064,21786
+Basileuterus rufifrons,Rufous-capped Warbler,3,0.4553,0.3852,21570.021,22626.064
+Numenius arquata,Eurasian Curlew,3,0.4368,0.3567,84,5139
+Athene noctua,Little Owl,3,0.4299,0.3411,6240.043,6867.021
+Poecile palustris,Marsh Tit,3,0.3660,0.3014,12354,17460.064
+Fulica atra,Eurasian Coot,3,0.2845,0.2697,648.064,16512.021
+Crypturellus cinereus,Cinereous Tinamou,2,0.8705,0.5706,7287,13356.043
+Myzomela sanguinolenta,Scarlet Myzomela,2,0.8087,0.5807,7764,12318
+Turdus rufiventris,Rufous-bellied Thrush,2,0.7025,0.6118,6537.043,7782
+Troglodytes hiemalis,Winter Wren,2,0.5643,0.4132,7293,19923.064
+Prunella modularis,Dunnock,2,0.5458,0.4236,5994.064,6882.021
+Corvus monedula,Eurasian Jackdaw,2,0.5407,0.4581,13098.064,13104.064
+Sitta canadensis,Red-breasted Nuthatch,2,0.5299,0.4167,17031,18264.043
+Dendrocopos major,Great Spotted Woodpecker,2,0.4810,0.4023,12786.064,12993.064
+Saltator fuliginosus,Black-throated Grosbeak,2,0.4746,0.4289,7458,7794
+Burhinus oedicnemus,Eurasian Thick-knee,2,0.4369,0.3728,3777.043,4860
+Falco sparverius,American Kestrel,2,0.4011,0.3650,4770.021,23238.043
+Larus glaucescens,Glaucous-winged Gull,2,0.3662,0.3591,6912.021,6933.021
+Ardea cinerea,Gray Heron,2,0.3488,0.3341,8700.043,19494
+Zenaida macroura,Mourning Dove,2,0.3488,0.3200,12120,14961
+Strepera graculina,Pied Currawong,2,0.3408,0.3274,22134,22383.064
+Strix uralensis,Ural Owl,2,0.3348,0.3047,3363.064,6852.021
+Baeolophus bicolor,Tufted Titmouse,2,0.3345,0.3260,13455.043,18045.043
+Aramus guarauna,Limpkin,2,0.3258,0.3080,5025,17175
+Larus cachinnans,Caspian Gull,2,0.3242,0.2944,8040.064,8127.064
+Poecile montanus,Willow Tit,2,0.3143,0.3016,18834.021,20670.043
+Ninox boobook,Southern Boobook,2,0.2887,0.2832,23340.043,23961.021
+Cyanocitta stelleri,Steller's Jay,2,0.2842,0.2795,16932,19548
+Troglodytes rufociliatus,Rufous-browed Wren,2,0.2611,0.2577,2109.021,24450
+Amazona oratrix,Yellow-headed Parrot,1,0.8974,0.8974,13293.043,13296.043
+Branta leucopsis,Barnacle Goose,1,0.8186,0.8186,23682.021,23685.021
+Drymophila ochropyga,Ochre-rumped Antbird,1,0.6925,0.6925,7209,7212
+Tringa ochropus,Green Sandpiper,1,0.6898,0.6898,17412.064,17415.064
+Cygnus columbianus,Tundra Swan,1,0.6726,0.6726,537,540
+Grallaria rufocinerea,Bicolored Antpitta,1,0.6401,0.6401,22053,22056
+Arremon aurantiirostris,Orange-billed Sparrow,1,0.6197,0.6197,10851.043,10854.043
+Vireo huttoni,Hutton's Vireo,1,0.6027,0.6027,16479.021,16482.021
+Poecile gambeli,Mountain Chickadee,1,0.5905,0.5905,22926.043,22929.043
+Anser albifrons,Greater White-fronted Goose,1,0.5760,0.5760,39,42
+Setophaga townsendi,Townsend's Warbler,1,0.5635,0.5635,23916.021,23919.021
+Sclerurus scansor,Rufous-breasted Leaftosser,1,0.5524,0.5524,12786.064,12789.064
+Buteo lineatus,Red-shouldered Hawk,1,0.5178,0.5178,16659.021,16662.021
+Cygnus buccinator,Trumpeter Swan,1,0.5000,0.5000,9927,9930
+Corythopis delalandi,Southern Antpipit,1,0.4890,0.4890,8013.064,8016.064
+Alcedo atthis,Common Kingfisher,1,0.4886,0.4886,7455,7458
+Setophaga dominica,Yellow-throated Warbler,1,0.4879,0.4879,25152.064,25155.064
+Grus grus,Common Crane,1,0.4736,0.4736,13851.021,13854.021
+Turdus pilaris,Fieldfare,1,0.4491,0.4491,15477.064,15480.064
+Phylloscopus inornatus,Yellow-browed Warbler,1,0.4490,0.4490,11187.043,11190.043
+Cyanolyca armillata,Black-collared Jay,1,0.4486,0.4486,18786.021,18789.021
+Corvus brachyrhynchos,American Crow,1,0.4350,0.4350,12801.064,12804.064
+Phylloscopus trochiloides,Greenish Warbler,1,0.4250,0.4250,6690.021,6693.021
+Glaucidium gnoma,Northern Pygmy-Owl,1,0.4193,0.4193,21636,21639
+Ixobrychus minutus,Little Bittern,1,0.4176,0.4176,4338.021,4341.021
+Aspatha gularis,Blue-throated Motmot,1,0.4130,0.4130,20274.064,20277.064
+Thryomanes bewickii,Bewick's Wren,1,0.4093,0.4093,22734.064,22737.064
+Scolopax minor,American Woodcock,1,0.4063,0.4063,3576.064,3579.064
+Pyrrhula pyrrhula,Eurasian Bullfinch,1,0.3941,0.3941,17277,17280
+Anthus hodgsoni,Olive-backed Pipit,1,0.3857,0.3857,22722.064,22725.064
+Tringa totanus,Common Redshank,1,0.3787,0.3787,13902.021,13905.021
+Accipiter cooperii,Cooper's Hawk,1,0.3760,0.3760,19773,19776
+Lochmias nematura,Sharp-tailed Streamcreeper,1,0.3679,0.3679,11907.021,11910.021
+Chroicocephalus ridibundus,Black-headed Gull,1,0.3625,0.3625,855.064,858.064
+Setophaga ruticilla,American Redstart,1,0.3619,0.3619,3093.064,3096.064
+Streptopelia turtur,European Turtle-Dove,1,0.3497,0.3497,10581.064,10584.064
+Saltator similis,Green-winged Saltator,1,0.3495,0.3495,7476,7479
+Setophaga striata,Blackpoll Warbler,1,0.3468,0.3468,13962.021,13965.021
+Larus dominicanus,Kelp Gull,1,0.3462,0.3462,17145,17148
+Rallus aquaticus,Water Rail,1,0.3452,0.3452,4905,4908
+Contopus virens,Eastern Wood-Pewee,1,0.3398,0.3398,25041.064,25044.064
+Branta canadensis,Canada Goose,1,0.3229,0.3229,16296.021,16299.021
+Otus lettia,Collared Scops-Owl,1,0.3211,0.3211,23079.043,23082.043
+Phoeniculus purpureus,Green Woodhoopoe,1,0.3085,0.3085,12810.064,12813.064
+Pinicola enucleator,Pine Grosbeak,1,0.3057,0.3057,2571,2574
+Pernis apivorus,European Honey-buzzard,1,0.2959,0.2959,3381.064,3384.064
+Emberiza hortulana,Ortolan Bunting,1,0.2935,0.2935,24972.064,24975.064
+Troglodytes aedon,House Wren,1,0.2855,0.2855,2538,2541
+Pluvialis apricaria,European Golden-Plover,1,0.2849,0.2849,3819.043,3822.043
+Remiz pendulinus,Eurasian Penduline-Tit,1,0.2811,0.2811,20892.043,20895.043
+Ptiloris magnificus,Magnificent Riflebird,1,0.2811,0.2811,9729,9732
+Setophaga occidentalis,Hermit Warbler,1,0.2786,0.2786,1872.021,1875.021
+Leiothlypis ruficapilla,Nashville Warbler,1,0.2786,0.2786,3294.064,3297.064
+Contopus sordidulus,Western Wood-Pewee,1,0.2783,0.2783,6009.043,6012.043
+Cardinalis cardinalis,Northern Cardinal,1,0.2689,0.2689,171,174
+Cyanocorax yncas,Green Jay,1,0.2685,0.2685,15405.064,15408.064
+Dicaeum hirundinaceum,Mistletoebird,1,0.2672,0.2672,7950.064,7953.064
+Phoenicurus ochruros,Black Redstart,1,0.2589,0.2589,7986.064,7989.064
+Burhinus grallarius,Bush Thick-knee,1,0.2582,0.2582,23088.043,23091.043
+Gavia arctica,Arctic Loon,1,0.2575,0.2575,18447.043,18450.043
+Anas crecca,Green-winged Teal,1,0.2538,0.2538,888.064,891.064
