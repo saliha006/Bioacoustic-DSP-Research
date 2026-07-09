@@ -1,0 +1,8 @@
+librosa
+soundfile
+matplotlib
+numpy
+pandas
+python-dotenv
+supabase
+boto3
