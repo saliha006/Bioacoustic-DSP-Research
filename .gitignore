@@ -32,11 +32,12 @@ sites/
 reference-examples/
 
 # --- Processing pipeline code: professor-provided, IP status unconfirmed.
-# Do not push until cleared — see CLAUDE_CONTEXT.md / ask before end of website build.
+# Do not push until cleared — ask before end of website build.
 processing/
 
-# --- Internal handoff notes (supervisor/Teams references, not for public repo) ---
-CLAUDE_CONTEXT.md
+# --- Local planning/context docs (Claude/Codex instructions, notes) — never pushed ---
+*.md
+!README.md
 
 # --- OS cruft ---
 Thumbs.db
