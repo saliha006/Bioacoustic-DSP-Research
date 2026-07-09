@@ -99,12 +99,17 @@ def process_recording(recording_path, results_csv, summary_csv,
     summary = pd.read_csv(summary_csv)
     results = pd.read_csv(results_csv)
 
-    reviewable = summary[summary["Mean confidence"] <= confidence_threshold]
+    # BirdNET's non-species classes (Engine, Siren, Human vocal, etc.) have no
+    # real scientific name — their "Scientific name" column just repeats the
+    # common name, unlike an actual species' Latin binomial. Skip those.
+    is_real_species = summary["Scientific name"] != summary["Common name"]
+    reviewable = summary[is_real_species & (summary["Mean confidence"] <= confidence_threshold)]
     if limit:
         reviewable = reviewable.head(limit)
 
-    print(f"{recording_id}: {len(summary)} species total, "
-          f"{len(reviewable)} at/below confidence {confidence_threshold} "
+    skipped_non_species = (~is_real_species).sum()
+    print(f"{recording_id}: {len(summary)} species total ({skipped_non_species} non-species "
+          f"classes skipped), {len(reviewable)} at/below confidence {confidence_threshold} "
           f"({'first ' + str(limit) if limit else 'all reviewable'})")
 
     if dry_run:
