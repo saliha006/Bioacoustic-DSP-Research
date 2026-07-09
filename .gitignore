@@ -1,7 +1,7 @@
 # --- Audio recordings & intermediate chunks (far too large for GitHub) ---
 *.WAV
 *.wav
-Recordings/
+recordings/
 **/Extracted chunks/
 **/chunks/
 birdnet_work*/
@@ -24,6 +24,19 @@ __pycache__/
 # --- Backups & logs ---
 **/_pre-recombine-backup/
 *.log
+
+# --- Site photos (not for public repo) ---
+sites/
+
+# --- Reference/QA clips, not for public repo ---
+reference-examples/
+
+# --- Processing pipeline code: professor-provided, IP status unconfirmed.
+# Do not push until cleared — see CLAUDE_CONTEXT.md / ask before end of website build.
+processing/
+
+# --- Internal handoff notes (supervisor/Teams references, not for public repo) ---
+CLAUDE_CONTEXT.md
 
 # --- OS cruft ---
 Thumbs.db
