@@ -1,6 +1,7 @@
 # --- Audio recordings & intermediate chunks (far too large for GitHub) ---
 *.WAV
 *.wav
+!website/public/sample/*.wav
 recordings/
 **/Extracted chunks/
 **/chunks/
