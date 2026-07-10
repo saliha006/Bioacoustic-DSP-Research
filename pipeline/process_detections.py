@@ -114,12 +114,21 @@ def process_recording(recording_path, results_csv, summary_csv,
 
     if dry_run:
         supabase = r2 = bucket = public_url_base = None
+        already_uploaded = set()
     else:
         load_dotenv()
         supabase = build_supabase_client()
         r2 = build_r2_client()
         bucket = os.environ["R2_BUCKET"]
         public_url_base = os.environ["R2_PUBLIC_URL_BASE"]
+
+        existing = (
+            supabase.table("detections")
+            .select("species_scientific_name")
+            .eq("recording_id", recording_id)
+            .execute()
+        )
+        already_uploaded = {row["species_scientific_name"] for row in existing.data}
 
     with sf.SoundFile(str(recording_path)) as f:
         sr = f.samplerate
@@ -129,6 +138,10 @@ def process_recording(recording_path, results_csv, summary_csv,
             species_common = species_row["Common name"]
             mean_confidence = float(species_row["Mean confidence"])
             capture_count = int(species_row["Detections"])
+
+            if species_scientific in already_uploaded:
+                print(f"  skipping {species_common} ({species_scientific}): already in Supabase")
+                continue
 
             matches = results[results["Scientific name"] == species_scientific]
             if matches.empty:

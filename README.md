@@ -12,6 +12,7 @@ Since automated detections need expert confirmation before they count as verifie
 
 ```
 findings/          BirdNET detection output — species, confidence, detection counts, per recording
+pipeline/           Batch script: cuts clips + spectrograms, uploads to R2, inserts Supabase rows
 presentation/       Project presentation
 website/            Review app (Vite + React + Supabase)
 ```
@@ -19,4 +20,4 @@ website/            Review app (Vite + React + Supabase)
 ## Tech stack
 
 - **Audio processing:** Python, BirdNET, librosa
-- **Review app:** Vite, React, Supabase (Postgres + Storage)
+- **Review app:** Vite, React, Supabase (Postgres), Cloudflare R2 (clip/spectrogram storage)
