@@ -55,7 +55,7 @@ def make_spectrogram_png(y, sr):
     ax.axis("off")
     if len(y) > 0:
         s = librosa.amplitude_to_db(np.abs(librosa.stft(y)), ref=np.max)
-        librosa.display.specshow(s, sr=sr, x_axis="time", y_axis="hz", ax=ax)
+        librosa.display.specshow(s, sr=sr, x_axis="time", y_axis="hz", ax=ax, cmap="gray")
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight", pad_inches=0)
     plt.close(fig)

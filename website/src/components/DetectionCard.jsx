@@ -13,12 +13,6 @@ function DetectionCard({ detection }) {
 
   return (
     <div className="detection-card">
-      <img
-        className="spectrogram"
-        src={detection.spectrogramUrl}
-        alt={`Spectrogram for ${detection.speciesCommonName} detection`}
-      />
-
       <div className="detection-info">
         <h2>{detection.speciesCommonName}</h2>
         <p className="scientific-name">{detection.speciesScientificName}</p>
@@ -38,6 +32,12 @@ function DetectionCard({ detection }) {
           </div>
         </dl>
       </div>
+
+      <img
+        className="spectrogram"
+        src={detection.spectrogramUrl}
+        alt={`Spectrogram for ${detection.speciesCommonName} detection`}
+      />
 
       <div className="segment-player">
         <div className="segment-tabs">
