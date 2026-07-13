@@ -1,106 +1,375 @@
 .detection-card {
-  padding: 24px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(20px, 2.4vw, 28px);
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  text-align: left;
+  gap: 18px;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
 }
 
-.spectrogram {
-  width: 100%;
-  border-radius: 8px;
-  display: block;
+.detection-card:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-lift);
 }
 
-.detection-info h2 {
-  margin: 0;
+/* ---- Heading -------------------------------------------------------- */
+.card-heading h2 {
+  font-size: 1.6rem;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
 }
 
 .scientific-name {
-  margin: 2px 0 12px;
+  margin-top: 3px;
+  font-family: var(--font-serif);
   font-style: italic;
-  opacity: 0.7;
+  font-size: 1.05rem;
+  color: var(--muted);
 }
 
+/* ---- Stats ---------------------------------------------------------- */
 .stats {
   display: flex;
-  gap: 24px;
+  gap: 28px;
   margin: 0;
+  padding-bottom: 2px;
 }
 
 .stats dt {
-  font-size: 12px;
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  opacity: 0.6;
+  color: var(--muted);
 }
 
 .stats dd {
+  margin: 4px 0 0;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Spectrogram stage + hover controls ----------------------------- */
+.stage {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+}
+
+.spectrogram {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.stage-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 18, 20, 0.34);
+  opacity: 0;
+  transition: opacity 0.2s var(--ease-out);
+  pointer-events: none;
+}
+
+.stage:hover .stage-scrim,
+.stage:focus-within .stage-scrim {
+  opacity: 1;
+}
+
+.stage.is-playing .stage-scrim {
+  opacity: 0.5;
+}
+
+/* Play/pause button — only surfaces on hover or keyboard focus. */
+.play-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.5);
+  color: var(--ink);
+  cursor: pointer;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.9);
+  transition: opacity 0.2s var(--ease-out), transform 0.2s var(--ease-out),
+    background 0.15s var(--ease-out);
+}
+
+.stage:hover .play-button,
+.stage:focus-within .play-button {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.play-button:hover {
+  background: #fff;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.play-button:active {
+  transform: translate(-50%, -50%) scale(0.98);
+}
+
+.play-button svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+  margin-left: 1px; /* optically centre the play triangle */
+}
+
+.play-button:has(rect) svg {
+  margin-left: 0;
+}
+
+/* Scrubber — a native range input styled as a thin seek line. */
+.scrubber {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 18px;
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.segment-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.segment-tabs button {
-  flex: 1;
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
+  padding: 0;
   background: transparent;
   cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease-out);
+  -webkit-appearance: none;
+  appearance: none;
 }
 
-.segment-tabs button.active {
-  background: var(--accent-bg);
-  border-color: var(--accent-border);
-  color: var(--accent);
+.stage:hover .scrubber,
+.stage:focus-within .scrubber,
+.stage.is-playing .scrubber {
+  opacity: 1;
 }
 
-.segment-player audio {
-  width: 100%;
+.scrubber::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 0;
+  background: linear-gradient(
+    to right,
+    #fff 0,
+    #fff var(--fill, 0%),
+    rgba(255, 255, 255, 0.32) var(--fill, 0%)
+  );
+}
+
+.scrubber::-moz-range-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.scrubber::-moz-range-progress {
+  height: 4px;
+  background: #fff;
+}
+
+.scrubber::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.15s var(--ease-out);
+}
+
+.scrubber::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.15s var(--ease-out);
+}
+
+.stage:hover .scrubber::-webkit-slider-thumb,
+.stage:focus-within .scrubber::-webkit-slider-thumb {
+  opacity: 1;
+}
+
+.stage:hover .scrubber::-moz-range-thumb,
+.stage:focus-within .scrubber::-moz-range-thumb {
+  opacity: 1;
+}
+
+/* ---- Segmented control (before / during / after) -------------------- */
+.segments {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+}
+
+.segments button {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s var(--ease-out), color 0.15s var(--ease-out);
+}
+
+.segments button:hover {
+  color: var(--ink);
+}
+
+.segments button.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(23, 23, 26, 0.12);
+}
+
+/* ---- Review verdict ------------------------------------------------- */
+.review {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 2px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
 }
 
 .review-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .review-btn {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: 2px solid transparent;
+  min-width: 76px;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-body);
+  font: inherit;
+  font-weight: 500;
   cursor: pointer;
-  font-weight: 600;
+  transition: background 0.15s var(--ease-out), border-color 0.15s var(--ease-out),
+    color 0.15s var(--ease-out);
 }
 
-.review-btn.yes {
-  background: #1f7a3f22;
-  color: #1f7a3f;
+.review-btn.yes:hover {
+  border-color: var(--yes);
+  color: var(--yes);
 }
 
-.review-btn.no {
-  background: #a4222222;
-  color: #a42222;
+.review-btn.no:hover {
+  border-color: var(--no);
+  color: var(--no);
 }
 
 .review-btn.active.yes {
-  border-color: #1f7a3f;
+  background: var(--yes-bg);
+  border-color: var(--yes);
+  color: var(--yes);
 }
 
 .review-btn.active.no {
-  border-color: #a42222;
+  background: var(--no-bg);
+  border-color: var(--no);
+  color: var(--no);
 }
 
 .review-status {
-  margin: 0;
-  opacity: 0.7;
-  font-size: 14px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+.review-status[data-status='yes'] {
+  color: var(--yes);
+}
+
+.review-status[data-status='no'] {
+  color: var(--no);
+}
+
+/* ---- Skeleton loading state ----------------------------------------- */
+.detection-card.is-skeleton {
+  gap: 16px;
+}
+
+.sk {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--surface-sunken) 0%,
+    #f5f5f3 50%,
+    var(--surface-sunken) 100%
+  );
+  background-size: 200% 100%;
+  animation: sk-shimmer 1.4s var(--ease-out) infinite;
+}
+
+.sk-title {
+  height: 26px;
+  width: 55%;
+}
+.sk-sci {
+  height: 16px;
+  width: 40%;
+}
+.sk-stats {
+  height: 34px;
+  width: 80%;
+}
+.sk-stage {
+  aspect-ratio: 2 / 1;
+  width: 100%;
+}
+.sk-tabs {
+  height: 40px;
+  width: 100%;
+}
+.sk-actions {
+  height: 40px;
+  width: 60%;
+}
+
+@keyframes sk-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk {
+    animation: none;
+  }
 }

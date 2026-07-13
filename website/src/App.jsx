@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import DetectionCard from './components/DetectionCard'
+import DetectionCardSkeleton from './components/DetectionCardSkeleton'
 import { supabase } from './lib/supabaseClient'
 import './App.css'
 
@@ -39,11 +40,54 @@ function App() {
       })
   }, [])
 
+  const stats = useMemo(() => {
+    const species = new Set(detections.map((d) => d.speciesScientificName))
+    const pending = detections.filter((d) => d.reviewStatus === 'pending').length
+    return {
+      detections: detections.length,
+      species: species.size,
+      pending,
+    }
+  }, [detections])
+
   return (
-    <main className="app">
-      <h1>Bird Detection Review</h1>
-      {loading && <p className="app-status">Loading detections…</p>}
-      {error && <p className="app-status app-error">Failed to load detections: {error}</p>}
+    <div className="page">
+      <header className="masthead">
+        <h1>Bird Detection Review</h1>
+        <p className="dateline">Tyne Derwent Way · AudioMoth acoustic survey, Gateshead</p>
+        <p className="lede">
+          Expert verification of BirdNET detections. Hear each call in the seconds
+          before, during, and after it was flagged, read the spectrogram, and
+          confirm whether the species is right.
+        </p>
+        {!loading && !error && (
+          <dl className="masthead-meta">
+            <div>
+              <dt>Detections</dt>
+              <dd>{stats.detections}</dd>
+            </div>
+            <div>
+              <dt>Species</dt>
+              <dd>{stats.species}</dd>
+            </div>
+            <div>
+              <dt>Awaiting review</dt>
+              <dd>{stats.pending}</dd>
+            </div>
+          </dl>
+        )}
+      </header>
+
+      {error && <p className="app-error">Failed to load detections: {error}</p>}
+
+      {loading && (
+        <div className="detection-gallery" aria-hidden="true">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <DetectionCardSkeleton key={i} />
+          ))}
+        </div>
+      )}
+
       {!loading && !error && (
         <div className="detection-gallery">
           {detections.map((detection) => (
@@ -51,7 +95,7 @@ function App() {
           ))}
         </div>
       )}
-    </main>
+    </div>
   )
 }
 

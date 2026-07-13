@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import './DetectionCard.css'
 
 const SEGMENTS = [
@@ -7,72 +7,177 @@ const SEGMENTS = [
   { key: 'after', label: 'After' },
 ]
 
+function PlayIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M8 5.14v13.72a1 1 0 0 0 1.52.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14Z" />
+    </svg>
+  )
+}
+
+function PauseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="6" y="5" width="4" height="14" rx="1" />
+      <rect x="14" y="5" width="4" height="14" rx="1" />
+    </svg>
+  )
+}
+
 function DetectionCard({ detection }) {
   const [segment, setSegment] = useState('during')
   const [reviewStatus, setReviewStatus] = useState(detection.reviewStatus)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const audioRef = useRef(null)
+
+  const currentUrl = detection[`${segment}ClipUrl`]
+  const activeSegmentLabel = SEGMENTS.find((s) => s.key === segment)?.label
+
+  function selectSegment(key) {
+    if (key === segment) return
+    const audio = audioRef.current
+    if (audio) {
+      audio.pause()
+      audio.currentTime = 0
+    }
+    setIsPlaying(false)
+    setProgress(0)
+    setSegment(key)
+  }
+
+  function togglePlay() {
+    const audio = audioRef.current
+    if (!audio) return
+    if (audio.paused) {
+      // Only one clip plays at a time across the whole gallery.
+      document.querySelectorAll('audio').forEach((el) => {
+        if (el !== audio) el.pause()
+      })
+      audio.play()
+    } else {
+      audio.pause()
+    }
+  }
+
+  function handleTimeUpdate() {
+    const audio = audioRef.current
+    if (audio && audio.duration) {
+      setProgress(audio.currentTime / audio.duration)
+    }
+  }
+
+  function seek(event) {
+    const audio = audioRef.current
+    if (!audio || !audio.duration) return
+    const ratio = Number(event.target.value)
+    audio.currentTime = ratio * audio.duration
+    setProgress(ratio)
+  }
 
   return (
-    <div className="detection-card">
-      <div className="detection-info">
+    <article className="detection-card">
+      <div className="card-heading">
         <h2>{detection.speciesCommonName}</h2>
         <p className="scientific-name">{detection.speciesScientificName}</p>
-
-        <dl className="stats">
-          <div>
-            <dt>Mean confidence</dt>
-            <dd>{(detection.meanConfidence * 100).toFixed(1)}%</dd>
-          </div>
-          <div>
-            <dt>Captures</dt>
-            <dd>{detection.captureCount}</dd>
-          </div>
-          <div>
-            <dt>Clip duration</dt>
-            <dd>{detection.clipDurationS}s</dd>
-          </div>
-        </dl>
       </div>
 
-      <img
-        className="spectrogram"
-        src={detection.spectrogramUrl}
-        alt={`Spectrogram for ${detection.speciesCommonName} detection`}
-      />
-
-      <div className="segment-player">
-        <div className="segment-tabs">
-          {SEGMENTS.map((s) => (
-            <button
-              key={s.key}
-              type="button"
-              className={segment === s.key ? 'active' : ''}
-              onClick={() => setSegment(s.key)}
-            >
-              {s.label}
-            </button>
-          ))}
+      <dl className="stats">
+        <div>
+          <dt>Mean confidence</dt>
+          <dd>{(detection.meanConfidence * 100).toFixed(1)}%</dd>
         </div>
-        <audio key={segment} controls src={detection[`${segment}ClipUrl`]} />
+        <div>
+          <dt>Captures</dt>
+          <dd>{detection.captureCount}</dd>
+        </div>
+        <div>
+          <dt>Clip length</dt>
+          <dd>{detection.clipDurationS}s</dd>
+        </div>
+      </dl>
+
+      <div className={`stage${isPlaying ? ' is-playing' : ''}`}>
+        <img
+          className="spectrogram"
+          src={detection.spectrogramUrl}
+          alt={`Spectrogram of the ${detection.speciesCommonName} detection`}
+        />
+        <div className="stage-scrim" aria-hidden="true" />
+
+        <button
+          type="button"
+          className="play-button"
+          onClick={togglePlay}
+          aria-label={`${isPlaying ? 'Pause' : 'Play'} the ${activeSegmentLabel.toLowerCase()} clip for ${detection.speciesCommonName}`}
+        >
+          {isPlaying ? <PauseIcon /> : <PlayIcon />}
+        </button>
+
+        <input
+          type="range"
+          className="scrubber"
+          min="0"
+          max="1"
+          step="0.001"
+          value={progress}
+          onChange={seek}
+          style={{ '--fill': `${progress * 100}%` }}
+          aria-label={`Seek within the ${activeSegmentLabel.toLowerCase()} clip`}
+        />
+
+        <audio
+          ref={audioRef}
+          src={currentUrl}
+          preload="none"
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onEnded={() => {
+            setIsPlaying(false)
+            setProgress(0)
+          }}
+          onTimeUpdate={handleTimeUpdate}
+        />
       </div>
 
-      <div className="review-actions">
-        <button
-          type="button"
-          className={reviewStatus === 'yes' ? 'review-btn yes active' : 'review-btn yes'}
-          onClick={() => setReviewStatus('yes')}
-        >
-          Yes
-        </button>
-        <button
-          type="button"
-          className={reviewStatus === 'no' ? 'review-btn no active' : 'review-btn no'}
-          onClick={() => setReviewStatus('no')}
-        >
-          No
-        </button>
+      <div className="segments" role="group" aria-label="Clip segment">
+        {SEGMENTS.map((s) => (
+          <button
+            key={s.key}
+            type="button"
+            className={segment === s.key ? 'active' : ''}
+            aria-pressed={segment === s.key}
+            onClick={() => selectSegment(s.key)}
+          >
+            {s.label}
+          </button>
+        ))}
       </div>
-      <p className="review-status">Status: {reviewStatus}</p>
-    </div>
+
+      <div className="review">
+        <div className="review-actions">
+          <button
+            type="button"
+            className={reviewStatus === 'yes' ? 'review-btn yes active' : 'review-btn yes'}
+            aria-pressed={reviewStatus === 'yes'}
+            onClick={() => setReviewStatus('yes')}
+          >
+            Yes
+          </button>
+          <button
+            type="button"
+            className={reviewStatus === 'no' ? 'review-btn no active' : 'review-btn no'}
+            aria-pressed={reviewStatus === 'no'}
+            onClick={() => setReviewStatus('no')}
+          >
+            No
+          </button>
+        </div>
+        <p className="review-status" data-status={reviewStatus}>
+          {reviewStatus === 'pending' ? 'Awaiting review' : `Marked ${reviewStatus}`}
+        </p>
+      </div>
+    </article>
   )
 }
 

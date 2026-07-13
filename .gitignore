@@ -1,7 +1,6 @@
 # --- Audio recordings & intermediate chunks (far too large for GitHub) ---
 *.WAV
 *.wav
-!website/public/sample/*.wav
 recordings/
 **/Extracted chunks/
 **/chunks/
@@ -43,3 +42,7 @@ processing/
 # --- OS cruft ---
 Thumbs.db
 .DS_Store
+
+# --- Local dev tooling (Impeccable design skill + its puppeteer dep) — not project code ---
+.claude/
+/node_modules/
