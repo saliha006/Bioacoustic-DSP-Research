@@ -12,6 +12,31 @@
   margin-bottom: 40px;
 }
 
+.masthead-account {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-bottom: 24px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.masthead-account button {
+  font: inherit;
+  color: var(--ink);
+  background: none;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: border-color 0.15s var(--ease-out);
+}
+
+.masthead-account button:hover {
+  border-color: var(--ink);
+}
+
 .masthead h1 {
   font-size: clamp(2.4rem, 6vw, 3.75rem);
   line-height: 1.02;
@@ -84,4 +109,13 @@
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 16px 20px;
+}
+
+.app-done {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  color: var(--ink);
+  max-width: 40ch;
+  padding: 48px 0;
+  text-wrap: pretty;
 }

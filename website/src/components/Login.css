@@ -1,0 +1,94 @@
+.login-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(24px, 6vw, 64px);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: clamp(28px, 5vw, 44px);
+}
+
+.login-card h1 {
+  font-size: clamp(1.9rem, 5vw, 2.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.login-lede {
+  margin-top: 16px;
+  color: var(--ink-body);
+  text-wrap: pretty;
+}
+
+.login-form {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-form label {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.login-form input {
+  font: inherit;
+  padding: 12px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.login-form input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+
+.login-form button {
+  margin-top: 12px;
+  font: inherit;
+  font-weight: 500;
+  padding: 12px 16px;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--surface);
+  cursor: pointer;
+  transition: opacity 0.15s var(--ease-out);
+}
+
+.login-form button:hover {
+  opacity: 0.88;
+}
+
+.login-form button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.login-sent {
+  margin-top: 20px;
+  color: var(--ink-body);
+  text-wrap: pretty;
+}
+
+.login-error {
+  margin-top: 14px;
+  color: var(--no);
+  background: var(--no-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.9rem;
+}

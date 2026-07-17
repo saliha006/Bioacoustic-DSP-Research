@@ -24,9 +24,9 @@ function PauseIcon() {
   )
 }
 
-function DetectionCard({ detection }) {
+function DetectionCard({ detection, onReview }) {
   const [segment, setSegment] = useState('during')
-  const [reviewStatus, setReviewStatus] = useState(detection.reviewStatus)
+  const [submitting, setSubmitting] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const audioRef = useRef(null)
@@ -158,24 +158,28 @@ function DetectionCard({ detection }) {
         <div className="review-actions">
           <button
             type="button"
-            className={reviewStatus === 'yes' ? 'review-btn yes active' : 'review-btn yes'}
-            aria-pressed={reviewStatus === 'yes'}
-            onClick={() => setReviewStatus('yes')}
+            className="review-btn yes"
+            disabled={submitting}
+            onClick={() => {
+              setSubmitting(true)
+              onReview(detection.id, 'yes')
+            }}
           >
             Yes
           </button>
           <button
             type="button"
-            className={reviewStatus === 'no' ? 'review-btn no active' : 'review-btn no'}
-            aria-pressed={reviewStatus === 'no'}
-            onClick={() => setReviewStatus('no')}
+            className="review-btn no"
+            disabled={submitting}
+            onClick={() => {
+              setSubmitting(true)
+              onReview(detection.id, 'no')
+            }}
           >
             No
           </button>
         </div>
-        <p className="review-status" data-status={reviewStatus}>
-          {reviewStatus === 'pending' ? 'Awaiting review' : `Marked ${reviewStatus}`}
-        </p>
+        <p className="review-status">Is this identification correct?</p>
       </div>
     </article>
   )
