@@ -90,7 +90,10 @@ def build_r2_client():
 
 
 def upload_to_r2(r2_client, bucket, public_url_base, path, data, content_type):
-    r2_client.put_object(Bucket=bucket, Key=path, Body=data, ContentType=content_type)
+    # no-cache so re-processing a detection (same key) is picked up on the next
+    # load instead of the browser serving a stale copy
+    r2_client.put_object(Bucket=bucket, Key=path, Body=data, ContentType=content_type,
+                         CacheControl="no-cache")
     return f"{public_url_base}/{path}"
 
 
@@ -139,6 +142,7 @@ def process_recording(recording_path, results_csv, summary_csv,
 
     with sf.SoundFile(str(recording_path)) as f:
         sr = f.samplerate
+        recording_length_s = len(f) / sr
 
         for _, species_row in reviewable.iterrows():
             species_scientific = species_row["Scientific name"]
@@ -153,7 +157,15 @@ def process_recording(recording_path, results_csv, summary_csv,
             matches = results[results["Scientific name"] == species_scientific]
             if matches.empty:
                 continue
-            detection = matches.iloc[0]
+            # pick a random detection rather than always the earliest, so the review
+            # clip isn't biased to the start of the recording. Prefer ones with a full
+            # CLIP_PADDING_S of audio on each side so before/during/after are all there;
+            # fall back to any match if a species only ever calls near the edges.
+            padded = matches[
+                (matches["Start (s)"] >= CLIP_PADDING_S)
+                & (matches["End (s)"] + CLIP_PADDING_S <= recording_length_s)
+            ]
+            detection = (padded if not padded.empty else matches).sample(1).iloc[0]
             start_s, end_s = float(detection["Start (s)"]), float(detection["End (s)"])
 
             during = cut_clip(f, sr, start_s, end_s)
