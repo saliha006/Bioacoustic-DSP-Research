@@ -1,9 +1,14 @@
-"""One-off: regenerate spectrogram PNGs for detections already in Supabase,
-using the (now grayscale) make_spectrogram_png(), and re-upload to the same
-R2 key so existing URLs keep working.
+"""Backfill: regenerate every detection's spectrograms from the clips already on
+R2, at the current (higher) resolution, and add the before/after spectrograms
+that older rows are missing.
 
-Re-derives the spectrogram from each row's already-uploaded during.ogg clip
-(not the source recording), so it works even if the raw .WAV isn't at hand.
+Reads each row's before/during/after .ogg from R2 (not the source .WAV, which may
+not be at hand), renders a spectrogram for each, and re-uploads:
+  - during  -> the existing spectrogram.png key (URL unchanged, just sharper)
+  - before  -> before-spectrogram.png   (new)
+  - after   -> after-spectrogram.png    (new)
+then writes the two new URLs back to the row. Run add_segment_spectrograms.sql
+first so those columns exist.
 
 Usage:
     python regenerate_spectrograms.py [--dry-run]
@@ -26,10 +31,16 @@ def r2_key_from_url(url, public_url_base):
     return url[len(prefix):]
 
 
+def spectrogram_from_clip(r2, bucket, clip_key):
+    obj = r2.get_object(Bucket=bucket, Key=clip_key)
+    y, sr = sf.read(io.BytesIO(obj["Body"].read()), dtype="float32")
+    return make_spectrogram_png(y, sr)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true",
-                         help="Regenerate in memory but skip the R2 re-upload")
+                         help="Render the spectrograms but skip the R2 upload and row update")
     args = parser.parse_args()
 
     load_dotenv()
@@ -40,31 +51,45 @@ def main():
 
     rows = (
         supabase.table("detections")
-        .select("id, recording_id, species_common_name, during_clip_url, spectrogram_url")
+        .select("id, recording_id, species_common_name, "
+                "before_clip_url, during_clip_url, after_clip_url, spectrogram_url")
         .execute()
         .data
     )
     print(f"{len(rows)} detections to regenerate")
 
     for row in rows:
-        during_key = r2_key_from_url(row["during_clip_url"], public_url_base)
-        spectrogram_key = r2_key_from_url(row["spectrogram_url"], public_url_base)
+        during_spec_key = r2_key_from_url(row["spectrogram_url"], public_url_base)
+        base_path = during_spec_key.rsplit("/", 1)[0]
+        before_spec_key = f"{base_path}/before-spectrogram.png"
+        after_spec_key = f"{base_path}/after-spectrogram.png"
 
-        obj = r2.get_object(Bucket=bucket, Key=during_key)
-        during_bytes = obj["Body"].read()
-        y, sr = sf.read(io.BytesIO(during_bytes), dtype="float32")
-
-        spectrogram_png = make_spectrogram_png(y, sr)
+        # spectrogram key -> the clip it's rendered from
+        segments = {
+            during_spec_key: r2_key_from_url(row["during_clip_url"], public_url_base),
+            before_spec_key: r2_key_from_url(row["before_clip_url"], public_url_base),
+            after_spec_key: r2_key_from_url(row["after_clip_url"], public_url_base),
+        }
+        rendered = {
+            spec_key: spectrogram_from_clip(r2, bucket, clip_key)
+            for spec_key, clip_key in segments.items()
+        }
 
         label = f"{row['recording_id']}/{row['species_common_name']}"
         if args.dry_run:
-            print(f"  [dry-run] {label}: regenerated spectrogram={len(spectrogram_png)}B "
-                  f"-> {spectrogram_key}")
+            sizes = ", ".join(f"{k.rsplit('/', 1)[1]}={len(v)}B" for k, v in rendered.items())
+            print(f"  [dry-run] {label}: {sizes}")
             continue
 
-        r2.put_object(Bucket=bucket, Key=spectrogram_key, Body=spectrogram_png,
-                       ContentType="image/png")
-        print(f"  re-uploaded {label} -> {spectrogram_key}")
+        for spec_key, png in rendered.items():
+            r2.put_object(Bucket=bucket, Key=spec_key, Body=png, ContentType="image/png")
+
+        supabase.table("detections").update({
+            "before_spectrogram_url": f"{public_url_base}/{before_spec_key}",
+            "after_spectrogram_url": f"{public_url_base}/{after_spec_key}",
+        }).eq("id", row["id"]).execute()
+
+        print(f"  regenerated {label} (3 spectrograms)")
 
 
 if __name__ == "__main__":

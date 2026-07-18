@@ -51,11 +51,15 @@ def cut_clip(sound_file, sr, start_s, end_s):
 
 
 def make_spectrogram_png(y, sr):
-    fig, ax = plt.subplots(figsize=(4, 2), dpi=100)
+    # 1200x600 (was 400x200) so it stays sharp in the enlarged/fullscreen view.
+    fig, ax = plt.subplots(figsize=(8, 4), dpi=150)
     ax.axis("off")
     if len(y) > 0:
         s = librosa.amplitude_to_db(np.abs(librosa.stft(y)), ref=np.max)
-        librosa.display.specshow(s, sr=sr, x_axis="time", y_axis="hz", ax=ax, cmap="gray")
+        # dark traces on white (Xeno-canto style); clip the quiet -50 dB floor
+        # so background noise stays white instead of a grey wash
+        librosa.display.specshow(s, sr=sr, x_axis="time", y_axis="hz", ax=ax,
+                                 cmap="gray_r", vmin=-50, vmax=0)
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight", pad_inches=0)
     plt.close(fig)
@@ -152,12 +156,14 @@ def process_recording(recording_path, results_csv, summary_csv,
             during = cut_clip(f, sr, start_s, end_s)
             before = cut_clip(f, sr, start_s - CLIP_PADDING_S, start_s)
             after = cut_clip(f, sr, end_s, end_s + CLIP_PADDING_S)
-            spectrogram_png = make_spectrogram_png(during, sr)
+            during_spectrogram = make_spectrogram_png(during, sr)
+            before_spectrogram = make_spectrogram_png(before, sr)
+            after_spectrogram = make_spectrogram_png(after, sr)
 
             if dry_run:
                 print(f"  [dry-run] {species_common} ({species_scientific}): "
                       f"before={len(before) / sr:.1f}s during={len(during) / sr:.1f}s "
-                      f"after={len(after) / sr:.1f}s spectrogram={len(spectrogram_png)}B")
+                      f"after={len(after) / sr:.1f}s, 3 spectrograms")
                 continue
 
             slug = species_scientific.lower().replace(" ", "-")
@@ -169,8 +175,15 @@ def process_recording(recording_path, results_csv, summary_csv,
                                        clip_to_ogg_bytes(during, sr), "audio/ogg")
             after_url = upload_to_r2(r2, bucket, public_url_base, f"{base_path}/after.ogg",
                                       clip_to_ogg_bytes(after, sr), "audio/ogg")
+            # during keeps the plain spectrogram.png name it always had
             spectrogram_url = upload_to_r2(r2, bucket, public_url_base, f"{base_path}/spectrogram.png",
-                                            spectrogram_png, "image/png")
+                                            during_spectrogram, "image/png")
+            before_spectrogram_url = upload_to_r2(r2, bucket, public_url_base,
+                                                   f"{base_path}/before-spectrogram.png",
+                                                   before_spectrogram, "image/png")
+            after_spectrogram_url = upload_to_r2(r2, bucket, public_url_base,
+                                                  f"{base_path}/after-spectrogram.png",
+                                                  after_spectrogram, "image/png")
 
             supabase.table("detections").insert({
                 "recording_id": recording_id,
@@ -183,6 +196,8 @@ def process_recording(recording_path, results_csv, summary_csv,
                 "during_clip_url": during_url,
                 "after_clip_url": after_url,
                 "spectrogram_url": spectrogram_url,
+                "before_spectrogram_url": before_spectrogram_url,
+                "after_spectrogram_url": after_spectrogram_url,
                 "review_status": "pending",
             }).execute()
 
