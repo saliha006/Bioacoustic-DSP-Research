@@ -26,7 +26,6 @@ import matplotlib
 
 matplotlib.use("Agg")
 import librosa
-import librosa.display
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -51,15 +50,19 @@ def cut_clip(sound_file, sr, start_s, end_s):
 
 
 def make_spectrogram_png(y, sr):
-    # 1200x600 (was 400x200) so it stays sharp in the enlarged/fullscreen view.
-    fig, ax = plt.subplots(figsize=(8, 4), dpi=150)
+    # 1600x800, dark traces on white (Xeno-canto / eBird style). A short hop plus
+    # imshow's bilinear interpolation keeps the trace smooth instead of the blocky
+    # tiles a flat STFT grid gives; the -50 dB floor keeps background noise white
+    # rather than a grey wash. sr isn't needed here (the frequency axis is drawn on
+    # the frontend), but the call sites already have it.
+    fig, ax = plt.subplots(figsize=(8, 4), dpi=200)
     ax.axis("off")
     if len(y) > 0:
-        s = librosa.amplitude_to_db(np.abs(librosa.stft(y)), ref=np.max)
-        # dark traces on white (Xeno-canto style); clip the quiet -50 dB floor
-        # so background noise stays white instead of a grey wash
-        librosa.display.specshow(s, sr=sr, x_axis="time", y_axis="hz", ax=ax,
-                                 cmap="gray_r", vmin=-50, vmax=0)
+        s = librosa.amplitude_to_db(
+            np.abs(librosa.stft(y, n_fft=2048, hop_length=128)), ref=np.max
+        )
+        ax.imshow(s, aspect="auto", origin="lower", cmap="gray_r", vmin=-50, vmax=0,
+                  interpolation="bilinear")
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight", pad_inches=0)
     plt.close(fig)
@@ -175,14 +178,13 @@ def process_recording(recording_path, results_csv, summary_csv,
                                        clip_to_ogg_bytes(during, sr), "audio/ogg")
             after_url = upload_to_r2(r2, bucket, public_url_base, f"{base_path}/after.ogg",
                                       clip_to_ogg_bytes(after, sr), "audio/ogg")
-            # during keeps the plain spectrogram.png name it always had
-            spectrogram_url = upload_to_r2(r2, bucket, public_url_base, f"{base_path}/spectrogram.png",
+            spectrogram_url = upload_to_r2(r2, bucket, public_url_base, f"{base_path}/spec-during.png",
                                             during_spectrogram, "image/png")
             before_spectrogram_url = upload_to_r2(r2, bucket, public_url_base,
-                                                   f"{base_path}/before-spectrogram.png",
+                                                   f"{base_path}/spec-before.png",
                                                    before_spectrogram, "image/png")
             after_spectrogram_url = upload_to_r2(r2, bucket, public_url_base,
-                                                  f"{base_path}/after-spectrogram.png",
+                                                  f"{base_path}/spec-after.png",
                                                   after_spectrogram, "image/png")
 
             supabase.table("detections").insert({
