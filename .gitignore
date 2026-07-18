@@ -46,3 +46,7 @@ Thumbs.db
 # --- Local dev tooling (Impeccable design skill + its puppeteer dep) — not project code ---
 .claude/
 /node_modules/
+
+# Locally-installed design skill packs (not project code)
+.agents/
+skills-lock.json
