@@ -183,7 +183,7 @@
    close button instead. */
 .stage-expand {
   position: absolute;
-  top: 8px;
+  bottom: 8px;
   right: 8px;
   display: grid;
   place-items: center;
