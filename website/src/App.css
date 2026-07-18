@@ -1,6 +1,6 @@
 .page {
   width: 100%;
-  max-width: 1140px;
+  max-width: 1500px;
   margin: 0 auto;
   padding: clamp(28px, 5vw, 72px) clamp(20px, 5vw, 56px) 96px;
 }
@@ -10,6 +10,7 @@
   border-bottom: 1px solid var(--line);
   padding-bottom: 32px;
   margin-bottom: 40px;
+  text-align: center;
 }
 
 .masthead-account {
@@ -41,7 +42,7 @@
   font-size: clamp(2.4rem, 6vw, 3.75rem);
   line-height: 1.02;
   letter-spacing: -0.02em;
-  margin: 0;
+  margin: 0 auto;
   max-width: 16ch;
 }
 
@@ -54,7 +55,7 @@
 }
 
 .lede {
-  margin-top: 18px;
+  margin: 18px auto 0;
   max-width: 58ch;
   font-size: 1.0625rem;
   color: var(--ink-body);
@@ -64,6 +65,7 @@
 .masthead-meta {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 12px 40px;
   margin: 32px 0 0;
 }
