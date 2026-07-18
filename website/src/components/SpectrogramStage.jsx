@@ -51,6 +51,9 @@ function SpectrogramStage({ detection, player, stageControl }) {
 
   const durationS = Math.max(1, Math.round(detection.clipDurationS || 3))
   const timeTicks = Array.from({ length: durationS + 1 }, (_, i) => i)
+  // rows regenerated with per-segment spectrograms swap the image with the tab;
+  // older rows only have the during image, so fall back to that
+  const spectrogramUrl = detection[`${segment}SpectrogramUrl`] || detection.spectrogramUrl
 
   return (
     <>
@@ -73,7 +76,7 @@ function SpectrogramStage({ detection, player, stageControl }) {
         >
           <img
             className="spectrogram"
-            src={detection.spectrogramUrl}
+            src={spectrogramUrl}
             alt={`Spectrogram of the ${detection.speciesCommonName} detection`}
             draggable={false}
           />

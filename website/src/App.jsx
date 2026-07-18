@@ -17,6 +17,9 @@ function mapDetection(row) {
     duringClipUrl: row.during_clip_url,
     afterClipUrl: row.after_clip_url,
     spectrogramUrl: row.spectrogram_url,
+    beforeSpectrogramUrl: row.before_spectrogram_url,
+    duringSpectrogramUrl: row.spectrogram_url,
+    afterSpectrogramUrl: row.after_spectrogram_url,
     reviewStatus: row.review_status,
   }
 }
