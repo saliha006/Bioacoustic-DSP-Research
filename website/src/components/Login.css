@@ -77,12 +77,6 @@
   cursor: default;
 }
 
-.login-sent {
-  margin-top: 20px;
-  color: var(--ink-body);
-  text-wrap: pretty;
-}
-
 .login-error {
   margin-top: 14px;
   color: var(--no);
