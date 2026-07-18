@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './DetectionCard.css'
 
 const SEGMENTS = [
@@ -6,6 +6,12 @@ const SEGMENTS = [
   { key: 'during', label: 'During' },
   { key: 'after', label: 'After' },
 ]
+
+// Frequency axis is linear Hz up to sr/2. Current data is 48 kHz audio, so the
+// spectrogram spans 0-24 kHz. Store per-clip sample rate before processing other
+// sample rates (see data-run task) to keep these labels exact.
+const FREQ_MAX_KHZ = 24
+const FREQ_TICKS = [24, 18, 12, 6, 0]
 
 function PlayIcon() {
   return (
@@ -29,10 +35,15 @@ function DetectionCard({ detection, onReview }) {
   const [submitting, setSubmitting] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [isScrubbing, setIsScrubbing] = useState(false)
   const audioRef = useRef(null)
+  const stageRef = useRef(null)
+  const pendingSeekRef = useRef(null)
 
   const currentUrl = detection[`${segment}ClipUrl`]
   const activeSegmentLabel = SEGMENTS.find((s) => s.key === segment)?.label
+  const durationS = Math.max(1, Math.round(detection.clipDurationS || 3))
+  const timeTicks = Array.from({ length: durationS + 1 }, (_, i) => i)
 
   function selectSegment(key) {
     if (key === segment) return
@@ -41,6 +52,7 @@ function DetectionCard({ detection, onReview }) {
       audio.pause()
       audio.currentTime = 0
     }
+    pendingSeekRef.current = null
     setIsPlaying(false)
     setProgress(0)
     setSegment(key)
@@ -60,19 +72,60 @@ function DetectionCard({ detection, onReview }) {
     }
   }
 
-  function handleTimeUpdate() {
+  // playhead runs off requestAnimationFrame while playing — the timeupdate
+  // event only fires ~4x/sec, which looked choppy
+  useEffect(() => {
+    if (!isPlaying) return
+    let frame
+    const tick = () => {
+      const audio = audioRef.current
+      if (audio && Number.isFinite(audio.duration) && audio.duration > 0) {
+        setProgress(audio.currentTime / audio.duration)
+      }
+      frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [isPlaying])
+
+  function seekToClientX(clientX) {
+    const stage = stageRef.current
     const audio = audioRef.current
-    if (audio && audio.duration) {
-      setProgress(audio.currentTime / audio.duration)
+    if (!stage || !audio) return
+    const rect = stage.getBoundingClientRect()
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
+    setProgress(ratio)
+    if (Number.isFinite(audio.duration) && audio.duration > 0) {
+      // stop a hair short of the end so scrubbing to the far edge doesn't
+      // trip 'ended' and bounce back to the start
+      audio.currentTime = Math.min(ratio * audio.duration, audio.duration - 0.05)
+      pendingSeekRef.current = null
+    } else {
+      // duration isn't known until the clip loads — apply the seek then
+      pendingSeekRef.current = ratio
     }
   }
 
-  function seek(event) {
+  function startScrub(event) {
+    setIsScrubbing(true)
+    event.currentTarget.setPointerCapture(event.pointerId)
+    seekToClientX(event.clientX)
+  }
+
+  function moveScrub(event) {
+    if (isScrubbing) seekToClientX(event.clientX)
+  }
+
+  function endScrub() {
+    setIsScrubbing(false)
+  }
+
+  function applyPendingSeek() {
     const audio = audioRef.current
-    if (!audio || !audio.duration) return
-    const ratio = Number(event.target.value)
-    audio.currentTime = ratio * audio.duration
-    setProgress(ratio)
+    if (audio && pendingSeekRef.current != null && Number.isFinite(audio.duration)) {
+      audio.currentTime = pendingSeekRef.current * audio.duration
+      pendingSeekRef.current = null
+    }
   }
 
   return (
@@ -97,48 +150,69 @@ function DetectionCard({ detection, onReview }) {
         </div>
       </dl>
 
-      <div className={`stage${isPlaying ? ' is-playing' : ''}`}>
+      <figure className="spectrogram-figure">
+      <div className="freq-axis" aria-hidden="true">
+        {FREQ_TICKS.map((k, i) => (
+          <span key={k} style={{ top: `${(1 - k / FREQ_MAX_KHZ) * 100}%` }}>
+            {i === 0 ? `${k} kHz` : k}
+          </span>
+        ))}
+      </div>
+
+      <div
+        ref={stageRef}
+        className={`stage${isPlaying ? ' is-playing' : ''}`}
+        onPointerDown={startScrub}
+        onPointerMove={moveScrub}
+        onPointerUp={endScrub}
+        onPointerCancel={endScrub}
+      >
         <img
           className="spectrogram"
           src={detection.spectrogramUrl}
           alt={`Spectrogram of the ${detection.speciesCommonName} detection`}
+          draggable={false}
         />
         <div className="stage-scrim" aria-hidden="true" />
+
+        <div
+          className={`playhead${isPlaying || progress > 0 || isScrubbing ? ' is-active' : ''}`}
+          style={{ left: `${progress * 100}%` }}
+          aria-hidden="true"
+        />
 
         <button
           type="button"
           className="play-button"
           onClick={togglePlay}
+          onPointerDown={(event) => event.stopPropagation()}
           aria-label={`${isPlaying ? 'Pause' : 'Play'} the ${activeSegmentLabel.toLowerCase()} clip for ${detection.speciesCommonName}`}
         >
           {isPlaying ? <PauseIcon /> : <PlayIcon />}
         </button>
 
-        <input
-          type="range"
-          className="scrubber"
-          min="0"
-          max="1"
-          step="0.001"
-          value={progress}
-          onChange={seek}
-          style={{ '--fill': `${progress * 100}%` }}
-          aria-label={`Seek within the ${activeSegmentLabel.toLowerCase()} clip`}
-        />
-
         <audio
           ref={audioRef}
           src={currentUrl}
-          preload="none"
+          preload="auto"
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           onEnded={() => {
             setIsPlaying(false)
             setProgress(0)
           }}
-          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={applyPendingSeek}
         />
       </div>
+
+      <div className="time-axis" aria-hidden="true">
+        {timeTicks.map((t, i) => (
+          <span key={t} style={{ left: `${(t / durationS) * 100}%` }}>
+            <b>{i === timeTicks.length - 1 ? `${t}s` : t}</b>
+          </span>
+        ))}
+      </div>
+      </figure>
 
       <div className="segments" role="group" aria-label="Clip segment">
         {SEGMENTS.map((s) => (
