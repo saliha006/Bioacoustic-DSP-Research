@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { SEGMENTS } from './useClipPlayer'
 import './SpectrogramStage.css'
 
@@ -52,6 +53,41 @@ function SpectrogramStage({ detection, player, stageControl }) {
   const durationS = Math.max(1, Math.round(detection.clipDurationS || 3))
   const timeTicks = Array.from({ length: durationS + 1 }, (_, i) => i)
   const activeIndex = SEGMENTS.findIndex((s) => s.key === segment)
+
+  // Glass hover pill that follows the cursor across the three tabs and squishes
+  // as it travels. Mouse only — touch has no hover to track.
+  const segmentsRef = useRef(null)
+  const hoverIndexRef = useRef(null)
+  const stretchTimer = useRef(0)
+  const [hover, setHover] = useState({ tx: 0, dy: 0, stretch: 1, visible: false })
+
+  useEffect(() => () => clearTimeout(stretchTimer.current), [])
+
+  function trackSegmentHover(event) {
+    if (event.pointerType !== 'mouse') return
+    const rect = segmentsRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const colW = (rect.width - 8) / SEGMENTS.length
+    const x = event.clientX - rect.left - 4
+    const index = Math.max(0, Math.min(SEGMENTS.length - 1, Math.floor(x / colW)))
+    // magnetic nudge toward the cursor within the tab, on both axes
+    const dx = Math.max(-6, Math.min(6, (x - (index * colW + colW / 2)) * 0.18))
+    const dy = Math.max(-3, Math.min(3, (event.clientY - rect.top - rect.height / 2) * 0.18))
+    const jumped = index !== hoverIndexRef.current
+    hoverIndexRef.current = index
+    // hidden over the active tab so the glass never doubles up on the solid pill
+    setHover({ tx: index * colW + dx, dy, stretch: jumped ? 1.18 : 1, visible: index !== activeIndex })
+    if (jumped) {
+      // let the stretch settle back after the pill has travelled
+      clearTimeout(stretchTimer.current)
+      stretchTimer.current = setTimeout(() => setHover((prev) => ({ ...prev, stretch: 1 })), 170)
+    }
+  }
+
+  function endSegmentHover() {
+    hoverIndexRef.current = null
+    setHover((prev) => ({ ...prev, visible: false, stretch: 1 }))
+  }
   // rows regenerated with per-segment spectrograms swap the image with the tab;
   // older rows only have the during image, so fall back to that
   const spectrogramUrl = detection[`${segment}SpectrogramUrl`] || detection.spectrogramUrl
@@ -127,13 +163,29 @@ function SpectrogramStage({ detection, player, stageControl }) {
         </div>
       </figure>
 
-      <div className="segments" role="group" aria-label="Clip segment">
+      <div
+        className="segments"
+        role="group"
+        aria-label="Clip segment"
+        ref={segmentsRef}
+        onPointerMove={trackSegmentHover}
+        onPointerLeave={endSegmentHover}
+      >
         {/* White pill that slides under the active label; the orange underline it
             carries is the one resting-state accent on the page. */}
         <span
           className="segment-thumb"
           style={{ transform: `translateX(${activeIndex * 100}%)` }}
           aria-hidden="true"
+        />
+        {/* Glass pill that trails the cursor across the tabs. */}
+        <span
+          className="segment-hover"
+          aria-hidden="true"
+          style={{
+            opacity: hover.visible ? 1 : 0,
+            transform: `translate(${hover.tx}px, ${hover.dy}px) scaleX(${hover.stretch})`,
+          }}
         />
         {SEGMENTS.map((s) => (
           <button
