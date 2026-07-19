@@ -144,11 +144,12 @@ function App() {
 
       {!loading && !error && queue.length > 0 && (
         <div className="detection-gallery">
-          {queue.map((detection) => (
+          {queue.map((detection, i) => (
             <DetectionCard
               key={detection.id}
               detection={detection}
               onReview={handleReview}
+              index={i}
             />
           ))}
         </div>

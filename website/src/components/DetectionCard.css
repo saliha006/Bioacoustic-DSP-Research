@@ -8,6 +8,24 @@
   gap: 18px;
   box-shadow: var(--shadow-card);
   transition: box-shadow 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
+  /* Each card settles in as it mounts — the first screenful staggers gently,
+     and any detection added later eases in the same way. Capped so a full
+     queue doesn't cascade forever. */
+  animation: card-in 0.45s var(--ease-out) both;
+  animation-delay: calc(min(var(--i, 0), 6) * 55ms);
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detection-card {
+    animation: none;
+  }
 }
 
 
@@ -76,7 +94,11 @@
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s var(--ease-out), border-color 0.15s var(--ease-out),
-    color 0.15s var(--ease-out);
+    color 0.15s var(--ease-out), transform 0.12s var(--ease-out);
+}
+
+.review-btn:active {
+  transform: scale(0.97);
 }
 
 .review-btn.yes:hover {

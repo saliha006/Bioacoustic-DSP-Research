@@ -12,7 +12,7 @@ function ExpandIcon() {
   )
 }
 
-function DetectionCard({ detection, onReview }) {
+function DetectionCard({ detection, onReview, index = 0 }) {
   const [submitting, setSubmitting] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
   const player = useClipPlayer(detection)
@@ -43,7 +43,7 @@ function DetectionCard({ detection, onReview }) {
   )
 
   return (
-    <article className="detection-card">
+    <article className="detection-card" style={{ '--i': index }}>
       <div className="card-heading">
         <h2>{detection.speciesCommonName}</h2>
         <p className="scientific-name">{detection.speciesScientificName}</p>
