@@ -65,11 +65,15 @@
   background: var(--ink);
   color: var(--surface);
   cursor: pointer;
-  transition: opacity 0.15s var(--ease-out);
+  transition: opacity 0.15s var(--ease-out), transform 0.12s var(--ease-out);
 }
 
 .login-form button:hover {
   opacity: 0.88;
+}
+
+.login-form button:active {
+  transform: scale(0.98);
 }
 
 .login-form button:disabled {

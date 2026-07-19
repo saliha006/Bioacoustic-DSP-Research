@@ -39,12 +39,17 @@
   background: var(--surface);
   color: var(--ink-body);
   cursor: pointer;
-  transition: border-color 0.15s var(--ease-out), color 0.15s var(--ease-out);
+  transition: border-color 0.15s var(--ease-out), color 0.15s var(--ease-out),
+    transform 0.12s var(--ease-out);
 }
 
 .modal-close:hover {
   border-color: var(--ink);
   color: var(--ink);
+}
+
+.modal-close:active {
+  transform: scale(0.94);
 }
 
 .modal-close svg {

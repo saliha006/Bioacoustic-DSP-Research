@@ -31,11 +31,15 @@
   border-radius: var(--radius-sm);
   padding: 6px 12px;
   cursor: pointer;
-  transition: border-color 0.15s var(--ease-out);
+  transition: border-color 0.15s var(--ease-out), transform 0.12s var(--ease-out);
 }
 
 .masthead-account button:hover {
   border-color: var(--ink);
+}
+
+.masthead-account button:active {
+  transform: scale(0.97);
 }
 
 .masthead h1 {
