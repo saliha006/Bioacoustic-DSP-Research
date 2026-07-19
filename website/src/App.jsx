@@ -3,6 +3,7 @@ import DetectionCard from './components/DetectionCard'
 import DetectionCardSkeleton from './components/DetectionCardSkeleton'
 import Login from './components/Login'
 import UndoToast from './components/UndoToast'
+import ReviewedPanel from './components/ReviewedPanel'
 import { supabase } from './lib/supabaseClient'
 import './App.css'
 
@@ -29,7 +30,7 @@ function App() {
   const [session, setSession] = useState(null)
   const [authReady, setAuthReady] = useState(false)
   const [detections, setDetections] = useState([])
-  const [reviewedIds, setReviewedIds] = useState(() => new Set())
+  const [reviews, setReviews] = useState(() => new Map()) // detectionId -> 'yes' | 'no'
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [toast, setToast] = useState(null)
@@ -58,22 +59,32 @@ function App() {
     // still outstanding for them.
     Promise.all([
       supabase.from('detections').select('*').order('created_at', { ascending: true }),
-      supabase.from('reviews').select('detection_id').eq('reviewer_id', session.user.id),
+      supabase.from('reviews').select('detection_id, verdict').eq('reviewer_id', session.user.id),
     ]).then(([detectionsRes, reviewsRes]) => {
       const err = detectionsRes.error || reviewsRes.error
       if (err) {
         setError(err.message)
       } else {
         setDetections(detectionsRes.data.map(mapDetection))
-        setReviewedIds(new Set(reviewsRes.data.map((r) => r.detection_id)))
+        setReviews(new Map(reviewsRes.data.map((r) => [r.detection_id, r.verdict])))
       }
       setLoading(false)
     })
   }, [session])
 
   const queue = useMemo(
-    () => detections.filter((d) => !reviewedIds.has(d.id)),
-    [detections, reviewedIds],
+    () => detections.filter((d) => !reviews.has(d.id)),
+    [detections, reviews],
+  )
+
+  // What the reviewer has already judged, each paired with its current verdict —
+  // this feeds the "Detections reviewed" panel.
+  const reviewed = useMemo(
+    () =>
+      detections
+        .filter((d) => reviews.has(d.id))
+        .map((detection) => ({ detection, verdict: reviews.get(detection.id) })),
+    [detections, reviews],
   )
 
   const stats = useMemo(() => {
@@ -88,19 +99,25 @@ function App() {
   const restoreToQueue = useCallback((detectionId) => {
     // The queue is derived from the stable oldest-first detections list, so
     // simply un-reviewing an id drops the card back into its original slot.
-    setReviewedIds((prev) => {
-      const next = new Set(prev)
+    setReviews((prev) => {
+      const next = new Map(prev)
       next.delete(detectionId)
       return next
     })
   }, [])
 
-  const commitReview = useCallback(
-    async (detectionId, verdict) => {
-      const { error: saveError } = await supabase.from('reviews').upsert(
+  const upsertReview = useCallback(
+    (detectionId, verdict) =>
+      supabase.from('reviews').upsert(
         { detection_id: detectionId, reviewer_id: session.user.id, verdict },
         { onConflict: 'detection_id,reviewer_id' },
-      )
+      ),
+    [session],
+  )
+
+  const commitReview = useCallback(
+    async (detectionId, verdict) => {
+      const { error: saveError } = await upsertReview(detectionId, verdict)
       if (saveError) {
         // Put the card back where it was and surface the failure rather than
         // silently dropping the verdict.
@@ -108,8 +125,21 @@ function App() {
         setError(`Couldn't save that review: ${saveError.message}`)
       }
     },
-    [session, restoreToQueue],
+    [upsertReview, restoreToQueue],
   )
+
+  // Editing a past verdict from the reviewed panel — persists immediately (no
+  // undo window; it's a deliberate change), reverting the row if the save fails.
+  async function changeVerdict(detectionId, verdict) {
+    const previous = reviews.get(detectionId)
+    if (previous === verdict) return
+    setReviews((prev) => new Map(prev).set(detectionId, verdict))
+    const { error: saveError } = await upsertReview(detectionId, verdict)
+    if (saveError) {
+      setReviews((prev) => new Map(prev).set(detectionId, previous))
+      setError(`Couldn't update that review: ${saveError.message}`)
+    }
+  }
 
   // Write out whatever's still inside its undo window right now.
   const flushPending = useCallback(() => {
@@ -125,7 +155,7 @@ function App() {
     flushPending()
     clearTimeout(dismissRef.current)
 
-    setReviewedIds((prev) => new Set(prev).add(detectionId))
+    setReviews((prev) => new Map(prev).set(detectionId, verdict))
     setToast({ verdict, undone: false })
 
     const commitTimer = setTimeout(() => {
@@ -169,6 +199,7 @@ function App() {
             Sign out
           </button>
         </div>
+        <ReviewedPanel items={reviewed} onChangeVerdict={changeVerdict} />
         <h1>Bird Detection Review</h1>
         <p className="dateline">Tyne Derwent Way · AudioMoth acoustic survey, Gateshead</p>
         <p className="lede">

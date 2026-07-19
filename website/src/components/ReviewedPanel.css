@@ -1,0 +1,99 @@
+/* Sits under the account row in the centered masthead, so keep it right-aligned
+   and left-read internally. */
+.reviewed-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  max-width: 460px;
+  margin: 0 0 8px auto;
+  text-align: left;
+}
+
+.reviewed-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 4px 2px;
+  cursor: pointer;
+  transition: color 0.15s var(--ease-out);
+}
+
+.reviewed-toggle:hover {
+  color: var(--ink);
+}
+
+.reviewed-chevron {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  transition: transform 0.18s var(--ease-out);
+}
+
+.reviewed-chevron[data-open='true'] {
+  transform: rotate(180deg);
+}
+
+.reviewed-list {
+  width: 100%;
+  margin: 8px 0 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+.reviewed-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.reviewed-row + .reviewed-row {
+  border-top: 1px solid var(--line);
+}
+
+.reviewed-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.reviewed-name {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.reviewed-sci {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.reviewed-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Compact the shared verdict buttons for the dense list. */
+.reviewed-actions .review-btn {
+  min-width: 0;
+  padding: 5px 12px;
+  font-size: 0.85rem;
+}
