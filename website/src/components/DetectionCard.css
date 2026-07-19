@@ -81,6 +81,9 @@
 .review-actions {
   display: flex;
   gap: 8px;
+  /* The prompt reads before the buttons in the DOM; keep the buttons on the
+     left visually. */
+  order: -1;
 }
 
 .review-btn {

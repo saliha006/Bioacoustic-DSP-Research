@@ -71,6 +71,7 @@ function DetectionCard({ detection, onReview, index = 0 }) {
       />
 
       <div className="review">
+        <p className="review-status">Is this identification correct?</p>
         <div className="review-actions">
           <button
             type="button"
@@ -95,7 +96,6 @@ function DetectionCard({ detection, onReview, index = 0 }) {
             No
           </button>
         </div>
-        <p className="review-status">Is this identification correct?</p>
       </div>
 
       {isExpanded && <DetectionModal detection={detection} onClose={closeExpanded} />}

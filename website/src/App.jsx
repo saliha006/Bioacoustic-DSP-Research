@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import DetectionCard from './components/DetectionCard'
 import DetectionCardSkeleton from './components/DetectionCardSkeleton'
 import Login from './components/Login'
+import UndoToast from './components/UndoToast'
 import { supabase } from './lib/supabaseClient'
 import './App.css'
 
@@ -31,6 +32,12 @@ function App() {
   const [reviewedIds, setReviewedIds] = useState(() => new Set())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [toast, setToast] = useState(null)
+  // The last verdict waits out a short undo window before it's written. Holding
+  // the pending write here (instead of firing on click) means Undo just cancels
+  // it — nothing to delete server-side.
+  const pendingRef = useRef(null)
+  const dismissRef = useRef(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -78,22 +85,77 @@ function App() {
     }
   }, [detections, queue])
 
-  async function handleReview(detectionId, verdict) {
-    // Optimistically drop it from the queue, then persist.
+  const restoreToQueue = useCallback((detectionId) => {
+    // The queue is derived from the stable oldest-first detections list, so
+    // simply un-reviewing an id drops the card back into its original slot.
+    setReviewedIds((prev) => {
+      const next = new Set(prev)
+      next.delete(detectionId)
+      return next
+    })
+  }, [])
+
+  const commitReview = useCallback(
+    async (detectionId, verdict) => {
+      const { error: saveError } = await supabase.from('reviews').upsert(
+        { detection_id: detectionId, reviewer_id: session.user.id, verdict },
+        { onConflict: 'detection_id,reviewer_id' },
+      )
+      if (saveError) {
+        // Put the card back where it was and surface the failure rather than
+        // silently dropping the verdict.
+        restoreToQueue(detectionId)
+        setError(`Couldn't save that review: ${saveError.message}`)
+      }
+    },
+    [session, restoreToQueue],
+  )
+
+  // Write out whatever's still inside its undo window right now.
+  const flushPending = useCallback(() => {
+    const pending = pendingRef.current
+    if (!pending) return
+    clearTimeout(pending.commitTimer)
+    pendingRef.current = null
+    commitReview(pending.detectionId, pending.verdict)
+  }, [commitReview])
+
+  function handleReview(detectionId, verdict) {
+    // A fresh verdict commits the previous one and takes over the undo window.
+    flushPending()
+    clearTimeout(dismissRef.current)
+
     setReviewedIds((prev) => new Set(prev).add(detectionId))
-    const { error: saveError } = await supabase.from('reviews').upsert(
-      { detection_id: detectionId, reviewer_id: session.user.id, verdict },
-      { onConflict: 'detection_id,reviewer_id' },
-    )
-    if (saveError) {
-      setReviewedIds((prev) => {
-        const next = new Set(prev)
-        next.delete(detectionId)
-        return next
-      })
-      setError(saveError.message)
-    }
+    setToast({ verdict, undone: false })
+
+    const commitTimer = setTimeout(() => {
+      if (!pendingRef.current) return
+      const { detectionId: id, verdict: v } = pendingRef.current
+      pendingRef.current = null
+      commitReview(id, v)
+      setToast(null)
+    }, 5000)
+    pendingRef.current = { detectionId, verdict, commitTimer }
   }
+
+  function handleUndo() {
+    const pending = pendingRef.current
+    if (!pending) return
+    clearTimeout(pending.commitTimer)
+    pendingRef.current = null
+    restoreToQueue(pending.detectionId)
+    setToast({ verdict: pending.verdict, undone: true })
+    dismissRef.current = setTimeout(() => setToast(null), 2500)
+  }
+
+  // Don't lose a verdict that's mid-window when the app unmounts (e.g. sign-out).
+  useEffect(() => {
+    window.addEventListener('beforeunload', flushPending)
+    return () => {
+      window.removeEventListener('beforeunload', flushPending)
+      flushPending()
+    }
+  }, [flushPending])
 
   if (!authReady) return null
   if (!session) return <Login />
@@ -160,6 +222,10 @@ function App() {
           All caught up — you&rsquo;ve reviewed every detection. New ones will
           appear here as they&rsquo;re added.
         </p>
+      )}
+
+      {toast && (
+        <UndoToast verdict={toast.verdict} undone={toast.undone} onUndo={handleUndo} />
       )}
     </div>
   )
