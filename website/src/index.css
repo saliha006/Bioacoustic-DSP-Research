@@ -1,9 +1,10 @@
 :root {
   color-scheme: light;
 
-  /* Neutral ramp — near-chromatic-zero, tuned to frame the grayscale
-     spectrograms without competing with them. */
-  --bg: #f3f3f1;
+  /* Warm-neutral ramp — the page carries a faint cream cast (toward the accent's
+     own hue, not generic beige) so true-white cards read as raised surfaces.
+     Kept whisper-subtle so it never competes with the grayscale spectrograms. */
+  --bg: #f4f2ec;
   --surface: #ffffff;
   --surface-sunken: #ecece9;
   --ink: #17171a;
