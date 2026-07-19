@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { SEGMENTS } from './useClipPlayer'
 import './SpectrogramStage.css'
 
@@ -54,39 +54,92 @@ function SpectrogramStage({ detection, player, stageControl }) {
   const timeTicks = Array.from({ length: durationS + 1 }, (_, i) => i)
   const activeIndex = SEGMENTS.findIndex((s) => s.key === segment)
 
-  // Glass hover pill that follows the cursor across the three tabs and squishes
-  // as it travels. Mouse only — touch has no hover to track.
+  // Glass hover pill that trails the cursor across the three tabs. A self-driven
+  // rAF loop writes the pill's transform straight onto the element while the
+  // mouse is over the group — no React state, so nothing re-renders per frame
+  // (that per-pointermove setState was what made it stutter on the hosted build).
+  // The pill eases toward the cursor and leans on both axes, like weight shifting
+  // inside a bubble, and hides over the active tab. Mouse only — touch has no
+  // hover to track.
   const segmentsRef = useRef(null)
-  const hoverIndexRef = useRef(null)
-  const stretchTimer = useRef(0)
-  const [hover, setHover] = useState({ tx: 0, dy: 0, stretch: 1, visible: false })
+  const hoverElRef = useRef(null)
+  const rectRef = useRef(null)
+  const rafRef = useRef(0)
+  const pointerRef = useRef({ x: 0, y: 0 })
+  const hoverIndexRef = useRef(-1)
+  const motionRef = useRef({ tx: 0, dy: 0, sx: 1 }) // current on-screen values, lerped toward the target
+  const reduceRef = useRef(false)
+  // Keep the active index reachable from the rAF loop without re-binding it.
+  const activeIndexRef = useRef(activeIndex)
+  activeIndexRef.current = activeIndex
 
-  useEffect(() => () => clearTimeout(stretchTimer.current), [])
+  useEffect(() => {
+    reduceRef.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [])
 
-  function trackSegmentHover(event) {
+  function columnWidth(rect) {
+    return (rect.width - 8) / SEGMENTS.length
+  }
+
+  function runHover() {
+    const el = hoverElRef.current
+    const rect = rectRef.current
+    if (!el || !rect) {
+      rafRef.current = 0
+      return
+    }
+    const colW = columnWidth(rect)
+    const x = pointerRef.current.x - rect.left - 4
+    const index = Math.max(0, Math.min(SEGMENTS.length - 1, Math.floor(x / colW)))
+    if (index !== hoverIndexRef.current) {
+      // a little squish when the pill crosses into a new tab, then it settles
+      if (hoverIndexRef.current !== -1 && !reduceRef.current) motionRef.current.sx = 1.15
+      hoverIndexRef.current = index
+    }
+    // target = the column, plus a magnetic lean toward the cursor on both axes;
+    // centred on a tab the lean is ~0, so the pill keeps its resting shape there
+    const leanX = reduceRef.current ? 0 : Math.max(-7, Math.min(7, (x - (index * colW + colW / 2)) * 0.24))
+    const leanY = reduceRef.current ? 0 : Math.max(-4, Math.min(4, (pointerRef.current.y - rect.top - rect.height / 2) * 0.24))
+    const targetTx = index * colW + leanX
+    const ease = reduceRef.current ? 1 : 0.25
+    const m = motionRef.current
+    m.tx += (targetTx - m.tx) * ease
+    m.dy += (leanY - m.dy) * ease
+    m.sx += (1 - m.sx) * 0.18
+    el.style.transform = `translate(${m.tx.toFixed(2)}px, ${m.dy.toFixed(2)}px) scaleX(${m.sx.toFixed(3)})`
+    el.style.opacity = index === activeIndexRef.current ? '0' : '1'
+    rafRef.current = requestAnimationFrame(runHover)
+  }
+
+  function enterSegments(event) {
     if (event.pointerType !== 'mouse') return
     const rect = segmentsRef.current?.getBoundingClientRect()
     if (!rect) return
-    const colW = (rect.width - 8) / SEGMENTS.length
-    const x = event.clientX - rect.left - 4
-    const index = Math.max(0, Math.min(SEGMENTS.length - 1, Math.floor(x / colW)))
-    // magnetic nudge toward the cursor within the tab, on both axes
-    const dx = Math.max(-6, Math.min(6, (x - (index * colW + colW / 2)) * 0.18))
-    const dy = Math.max(-3, Math.min(3, (event.clientY - rect.top - rect.height / 2) * 0.18))
-    const jumped = index !== hoverIndexRef.current
-    hoverIndexRef.current = index
-    // hidden over the active tab so the glass never doubles up on the solid pill
-    setHover({ tx: index * colW + dx, dy, stretch: jumped ? 1.18 : 1, visible: index !== activeIndex })
-    if (jumped) {
-      // let the stretch settle back after the pill has travelled
-      clearTimeout(stretchTimer.current)
-      stretchTimer.current = setTimeout(() => setHover((prev) => ({ ...prev, stretch: 1 })), 170)
+    rectRef.current = rect
+    pointerRef.current = { x: event.clientX, y: event.clientY }
+    // seed the pill at the cursor's column so it appears in place instead of
+    // sliding in from the first tab
+    if (hoverIndexRef.current === -1) {
+      const colW = columnWidth(rect)
+      const start = Math.max(0, Math.min(SEGMENTS.length - 1, Math.floor((event.clientX - rect.left - 4) / colW)))
+      motionRef.current = { tx: start * colW, dy: 0, sx: 1 }
+      hoverIndexRef.current = start
     }
+    if (!rafRef.current) rafRef.current = requestAnimationFrame(runHover)
   }
 
-  function endSegmentHover() {
-    hoverIndexRef.current = null
-    setHover((prev) => ({ ...prev, visible: false, stretch: 1 }))
+  function trackSegments(event) {
+    if (event.pointerType !== 'mouse') return
+    pointerRef.current = { x: event.clientX, y: event.clientY }
+  }
+
+  function endSegments() {
+    cancelAnimationFrame(rafRef.current)
+    rafRef.current = 0
+    hoverIndexRef.current = -1
+    rectRef.current = null
+    if (hoverElRef.current) hoverElRef.current.style.opacity = '0'
   }
   // rows regenerated with per-segment spectrograms swap the image with the tab;
   // older rows only have the during image, so fall back to that
@@ -168,8 +221,9 @@ function SpectrogramStage({ detection, player, stageControl }) {
         role="group"
         aria-label="Clip segment"
         ref={segmentsRef}
-        onPointerMove={trackSegmentHover}
-        onPointerLeave={endSegmentHover}
+        onPointerEnter={enterSegments}
+        onPointerMove={trackSegments}
+        onPointerLeave={endSegments}
       >
         {/* White pill that slides under the active label; the orange underline it
             carries is the one resting-state accent on the page. */}
@@ -178,15 +232,9 @@ function SpectrogramStage({ detection, player, stageControl }) {
           style={{ transform: `translateX(${activeIndex * 100}%)` }}
           aria-hidden="true"
         />
-        {/* Glass pill that trails the cursor across the tabs. */}
-        <span
-          className="segment-hover"
-          aria-hidden="true"
-          style={{
-            opacity: hover.visible ? 1 : 0,
-            transform: `translate(${hover.tx}px, ${hover.dy}px) scaleX(${hover.stretch})`,
-          }}
-        />
+        {/* Glass pill that trails the cursor across the tabs — positioned by the
+            rAF loop above, straight onto this node. */}
+        <span className="segment-hover" aria-hidden="true" ref={hoverElRef} />
         {SEGMENTS.map((s) => (
           <button
             key={s.key}
