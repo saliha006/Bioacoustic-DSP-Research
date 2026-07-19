@@ -51,6 +51,7 @@ function SpectrogramStage({ detection, player, stageControl }) {
 
   const durationS = Math.max(1, Math.round(detection.clipDurationS || 3))
   const timeTicks = Array.from({ length: durationS + 1 }, (_, i) => i)
+  const activeIndex = SEGMENTS.findIndex((s) => s.key === segment)
   // rows regenerated with per-segment spectrograms swap the image with the tab;
   // older rows only have the during image, so fall back to that
   const spectrogramUrl = detection[`${segment}SpectrogramUrl`] || detection.spectrogramUrl
@@ -82,11 +83,17 @@ function SpectrogramStage({ detection, player, stageControl }) {
           />
           <div className="stage-scrim" aria-hidden="true" />
 
+          {/* Full-width track shifted by transform so the playhead rides the
+              GPU — animating `left` per frame would relayout every card. */}
           <div
-            className={`playhead${isPlaying || progress > 0 || isScrubbing ? ' is-active' : ''}`}
-            style={{ left: `${progress * 100}%` }}
+            className="playhead-track"
+            style={{ transform: `translateX(${progress * 100}%)` }}
             aria-hidden="true"
-          />
+          >
+            <div
+              className={`playhead${isPlaying || progress > 0 || isScrubbing ? ' is-active' : ''}`}
+            />
+          </div>
 
           <button
             type="button"
@@ -121,6 +128,13 @@ function SpectrogramStage({ detection, player, stageControl }) {
       </figure>
 
       <div className="segments" role="group" aria-label="Clip segment">
+        {/* White pill that slides under the active label; the orange underline it
+            carries is the one resting-state accent on the page. */}
+        <span
+          className="segment-thumb"
+          style={{ transform: `translateX(${activeIndex * 100}%)` }}
+          aria-hidden="true"
+        />
         {SEGMENTS.map((s) => (
           <button
             key={s.key}

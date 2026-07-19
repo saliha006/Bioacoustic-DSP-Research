@@ -96,35 +96,50 @@
   display: block;
 }
 
+/* Light wash on hover so the play glyph reads without hiding the trace the
+   reviewer is here to inspect; barely-there while a clip is playing. */
 .stage-scrim {
   position: absolute;
   inset: 0;
-  background: rgba(18, 18, 20, 0.4);
+  background: rgba(18, 18, 20, 0.24);
   opacity: 0;
   transition: opacity 0.5s var(--ease-out);
   pointer-events: none;
 }
 
-.stage:hover .stage-scrim,
 .stage:focus-within .stage-scrim {
   opacity: 1;
 }
 
 .stage.is-playing .stage-scrim {
-  opacity: 0.5;
+  opacity: 0.55;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .stage:hover .stage-scrim {
+    opacity: 1;
+  }
 }
 
 /* Playhead — a thin vertical line that tracks playback across the spectrogram.
-   Orange accent only; short linear ease smooths the ~4Hz timeupdate stepping. */
+   The track spans the full stage and is shifted by transform (rAF sets it every
+   frame, so no CSS transition on position); the line sits at its left edge. */
+.playhead-track {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
 .playhead {
   position: absolute;
   top: 0;
   bottom: 0;
+  left: 0;
   width: 2px;
   background: var(--accent);
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
   opacity: 0;
-  pointer-events: none;
   transition: opacity 0.2s var(--ease-out);
 }
 
@@ -154,13 +169,18 @@
   filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.5));
 }
 
-.stage:hover .play-button,
 .stage:focus-within .play-button {
   opacity: 1;
 }
 
-.play-button:hover {
-  transform: translate(-50%, -50%) scale(1.08);
+@media (hover: hover) and (pointer: fine) {
+  .stage:hover .play-button {
+    opacity: 1;
+  }
+
+  .play-button:hover {
+    transform: translate(-50%, -50%) scale(1.08);
+  }
 }
 
 .play-button:active {
@@ -199,13 +219,18 @@
   filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.6));
 }
 
-.stage:hover .stage-expand,
 .stage:focus-within .stage-expand {
   opacity: 1;
 }
 
-.stage-expand:hover {
-  transform: scale(1.1);
+@media (hover: hover) and (pointer: fine) {
+  .stage:hover .stage-expand {
+    opacity: 1;
+  }
+
+  .stage-expand:hover {
+    transform: scale(1.1);
+  }
 }
 
 .stage-expand:active {
@@ -224,33 +249,70 @@
 
 /* ---- Segmented control (before / during / after) -------------------- */
 .segments {
-  display: flex;
-  gap: 4px;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   padding: 4px;
   background: var(--surface-sunken);
   border-radius: var(--radius-sm);
 }
 
+/* The pill glides between the three columns; its width matches one padded
+   column so translateX(index * 100%) lands it exactly. */
+.segment-thumb {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / 3);
+  background: var(--surface);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(23, 23, 26, 0.14);
+  transition: transform 0.26s var(--ease-out);
+  will-change: transform;
+}
+
+/* Thin orange underline riding inside the pill — the single resting accent. */
+.segment-thumb::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 5px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
 .segments button {
-  flex: 1;
+  position: relative;
   padding: 8px 12px;
   border: none;
-  border-radius: 4px;
   background: transparent;
   color: var(--muted);
   font: inherit;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s var(--ease-out), color 0.15s var(--ease-out);
-}
-
-.segments button:hover {
-  color: var(--ink);
+  transition: color 0.18s var(--ease-out), transform 0.12s var(--ease-out);
 }
 
 .segments button.active {
-  background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 1px 2px rgba(23, 23, 26, 0.12);
+}
+
+.segments button:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .segments button:hover {
+    color: var(--ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segment-thumb {
+    transition: none;
+  }
 }
