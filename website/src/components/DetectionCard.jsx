@@ -12,11 +12,21 @@ function ExpandIcon() {
   )
 }
 
-function DetectionCard({ detection, onReview, index = 0 }) {
+function DetectionCard({ detection, verdict = null, onVerdict, index = 0 }) {
+  // In the queue there's no verdict yet; in the reviewed view the card carries
+  // the reviewer's existing Yes/No so the chosen button reads as selected.
+  const isReviewed = verdict != null
   const [submitting, setSubmitting] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
   const player = useClipPlayer(detection)
   const expandButtonRef = useRef(null)
+
+  function pick(choice) {
+    // Only the queue removes the card on click, so guard against a double-fire
+    // there; in the reviewed view the buttons stay live for re-judging.
+    if (!isReviewed) setSubmitting(true)
+    onVerdict(detection.id, choice)
+  }
 
   function openExpanded() {
     // Silence the card's own clip so nothing keeps playing behind the modal.
@@ -75,23 +85,19 @@ function DetectionCard({ detection, onReview, index = 0 }) {
         <div className="review-actions">
           <button
             type="button"
-            className="review-btn yes"
+            className={`review-btn yes${verdict === 'yes' ? ' active' : ''}`}
+            aria-pressed={isReviewed ? verdict === 'yes' : undefined}
             disabled={submitting}
-            onClick={() => {
-              setSubmitting(true)
-              onReview(detection.id, 'yes')
-            }}
+            onClick={() => pick('yes')}
           >
             Yes
           </button>
           <button
             type="button"
-            className="review-btn no"
+            className={`review-btn no${verdict === 'no' ? ' active' : ''}`}
+            aria-pressed={isReviewed ? verdict === 'no' : undefined}
             disabled={submitting}
-            onClick={() => {
-              setSubmitting(true)
-              onReview(detection.id, 'no')
-            }}
+            onClick={() => pick('no')}
           >
             No
           </button>

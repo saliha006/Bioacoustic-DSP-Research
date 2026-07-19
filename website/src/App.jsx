@@ -3,7 +3,7 @@ import DetectionCard from './components/DetectionCard'
 import DetectionCardSkeleton from './components/DetectionCardSkeleton'
 import Login from './components/Login'
 import UndoToast from './components/UndoToast'
-import ReviewedPanel from './components/ReviewedPanel'
+import ReviewedView from './components/ReviewedView'
 import { supabase } from './lib/supabaseClient'
 import './App.css'
 
@@ -34,6 +34,7 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [toast, setToast] = useState(null)
+  const [view, setView] = useState('queue') // 'queue' | 'reviewed'
   // The last verdict waits out a short undo window before it's written. Holding
   // the pending write here (instead of firing on click) means Undo just cancels
   // it — nothing to delete server-side.
@@ -190,16 +191,32 @@ function App() {
   if (!authReady) return null
   if (!session) return <Login />
 
+  if (view === 'reviewed') {
+    return (
+      <div className="page">
+        <ReviewedView
+          items={reviewed}
+          onChangeVerdict={changeVerdict}
+          onBack={() => setView('queue')}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="page">
       <header className="masthead">
         <div className="masthead-account">
           <span>{session.user.email}</span>
+          {reviewed.length > 0 && (
+            <button type="button" onClick={() => setView('reviewed')}>
+              Detections reviewed ({reviewed.length})
+            </button>
+          )}
           <button type="button" onClick={() => supabase.auth.signOut()}>
             Sign out
           </button>
         </div>
-        <ReviewedPanel items={reviewed} onChangeVerdict={changeVerdict} />
         <h1>Bird Detection Review</h1>
         <p className="dateline">Tyne Derwent Way · AudioMoth acoustic survey, Gateshead</p>
         <p className="lede">
@@ -241,7 +258,7 @@ function App() {
             <DetectionCard
               key={detection.id}
               detection={detection}
-              onReview={handleReview}
+              onVerdict={handleReview}
               index={i}
             />
           ))}

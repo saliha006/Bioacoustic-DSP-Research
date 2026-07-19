@@ -1,0 +1,54 @@
+.reviewed-view-head {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 28px;
+  margin-bottom: 36px;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 6px 8px 6px 0;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: color 0.15s var(--ease-out), transform 0.12s var(--ease-out);
+}
+
+.back-btn:hover {
+  color: var(--ink);
+}
+
+.back-btn:active {
+  transform: scale(0.97);
+}
+
+.back-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.reviewed-view-head h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+}
+
+/* One card per row, held to a comfortable reading width rather than stretching
+   the full page. */
+.reviewed-column {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 3vw, 32px);
+  max-width: 720px;
+  margin: 0 auto;
+}
