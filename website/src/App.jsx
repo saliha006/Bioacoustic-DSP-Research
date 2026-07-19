@@ -35,6 +35,10 @@ function App() {
   const [error, setError] = useState(null)
   const [toast, setToast] = useState(null)
   const [view, setView] = useState('queue') // 'queue' | 'reviewed'
+  const [modalOpen, setModalOpen] = useState(false)
+  // Keyboard shortcuts always act on the top of the queue; this reaches into
+  // that card's player to toggle play / switch segment.
+  const topCardRef = useRef(null)
   // The last verdict waits out a short undo window before it's written. Holding
   // the pending write here (instead of firing on click) means Undo just cancels
   // it — nothing to delete server-side.
@@ -151,23 +155,26 @@ function App() {
     commitReview(pending.detectionId, pending.verdict)
   }, [commitReview])
 
-  function handleReview(detectionId, verdict) {
-    // A fresh verdict commits the previous one and takes over the undo window.
-    flushPending()
-    clearTimeout(dismissRef.current)
+  const handleReview = useCallback(
+    (detectionId, verdict) => {
+      // A fresh verdict commits the previous one and takes over the undo window.
+      flushPending()
+      clearTimeout(dismissRef.current)
 
-    setReviews((prev) => new Map(prev).set(detectionId, verdict))
-    setToast({ verdict, undone: false })
+      setReviews((prev) => new Map(prev).set(detectionId, verdict))
+      setToast({ verdict, undone: false })
 
-    const commitTimer = setTimeout(() => {
-      if (!pendingRef.current) return
-      const { detectionId: id, verdict: v } = pendingRef.current
-      pendingRef.current = null
-      commitReview(id, v)
-      setToast(null)
-    }, 5000)
-    pendingRef.current = { detectionId, verdict, commitTimer }
-  }
+      const commitTimer = setTimeout(() => {
+        if (!pendingRef.current) return
+        const { detectionId: id, verdict: v } = pendingRef.current
+        pendingRef.current = null
+        commitReview(id, v)
+        setToast(null)
+      }, 5000)
+      pendingRef.current = { detectionId, verdict, commitTimer }
+    },
+    [flushPending, commitReview],
+  )
 
   function handleUndo() {
     const pending = pendingRef.current
@@ -187,6 +194,48 @@ function App() {
       flushPending()
     }
   }, [flushPending])
+
+  // Keyboard shortcuts for fast triage — they only ever touch the top card so
+  // there's never a "which card?" question in the two-column grid. Off while a
+  // modal is open (it owns the screen) or the reviewer is on the reviewed page.
+  useEffect(() => {
+    function onKey(event) {
+      if (view !== 'queue' || modalOpen || event.repeat) return
+      if (event.metaKey || event.ctrlKey || event.altKey) return
+      const tag = event.target.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || event.target.isContentEditable) return
+      const top = queue[0]
+      if (!top) return
+      switch (event.key) {
+        case ' ':
+          // Let a focused button keep its native Space-to-click.
+          if (tag === 'BUTTON') return
+          event.preventDefault()
+          topCardRef.current?.togglePlay()
+          break
+        case '1':
+          topCardRef.current?.selectSegment('before')
+          break
+        case '2':
+          topCardRef.current?.selectSegment('during')
+          break
+        case '3':
+          topCardRef.current?.selectSegment('after')
+          break
+        case 'y':
+        case 'Y':
+          handleReview(top.id, 'yes')
+          break
+        case 'n':
+        case 'N':
+          handleReview(top.id, 'no')
+          break
+        default:
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [view, modalOpen, queue, handleReview])
 
   if (!authReady) return null
   if (!session) return <Login />
@@ -257,9 +306,12 @@ function App() {
           {queue.map((detection, i) => (
             <DetectionCard
               key={detection.id}
+              ref={i === 0 ? topCardRef : undefined}
               detection={detection}
               onVerdict={handleReview}
               index={i}
+              isTop={i === 0}
+              onExpandChange={setModalOpen}
             />
           ))}
         </div>

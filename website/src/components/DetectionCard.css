@@ -140,6 +140,40 @@
   color: var(--no);
 }
 
+/* ---- Keyboard hint (top card only) ---------------------------------- */
+.shortcut-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin-top: -4px;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.shortcut-hint span {
+  margin: 0 4px;
+  opacity: 0.5;
+}
+
+.shortcut-hint kbd {
+  font: inherit;
+  font-size: 0.68rem;
+  line-height: 1;
+  padding: 3px 5px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--surface-sunken);
+  color: var(--ink-body);
+}
+
+/* Coarse pointers have no keyboard, so drop the hint on touch. */
+@media (hover: none) {
+  .shortcut-hint {
+    display: none;
+  }
+}
+
 /* ---- Skeleton loading state ----------------------------------------- */
 .detection-card.is-skeleton {
   gap: 16px;

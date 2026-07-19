@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import SpectrogramStage from './SpectrogramStage'
 import DetectionModal from './DetectionModal'
 import { useClipPlayer } from './useClipPlayer'
@@ -12,7 +12,10 @@ function ExpandIcon() {
   )
 }
 
-function DetectionCard({ detection, verdict = null, onVerdict, index = 0 }) {
+const DetectionCard = forwardRef(function DetectionCard(
+  { detection, verdict = null, onVerdict, index = 0, isTop = false, onExpandChange },
+  ref,
+) {
   // In the queue there's no verdict yet; in the reviewed view the card carries
   // the reviewer's existing Yes/No so the chosen button reads as selected.
   const isReviewed = verdict != null
@@ -20,6 +23,21 @@ function DetectionCard({ detection, verdict = null, onVerdict, index = 0 }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const player = useClipPlayer(detection)
   const expandButtonRef = useRef(null)
+
+  // The top card exposes its player so App's keyboard shortcuts can drive it.
+  useImperativeHandle(ref, () => ({
+    togglePlay: player.togglePlay,
+    selectSegment: player.selectSegment,
+  }), [player])
+
+  // Let App know a modal is up so the queue shortcuts stand down while it's
+  // open — via an effect so an auto-unmount (verdict from the modal) still
+  // clears the flag.
+  useEffect(() => {
+    if (!isExpanded) return
+    onExpandChange?.(true)
+    return () => onExpandChange?.(false)
+  }, [isExpanded, onExpandChange])
 
   function pick(choice) {
     // Only the queue removes the card on click, so guard against a double-fire
@@ -104,9 +122,17 @@ function DetectionCard({ detection, verdict = null, onVerdict, index = 0 }) {
         </div>
       </div>
 
+      {isTop && (
+        <p className="shortcut-hint" aria-hidden="true">
+          <kbd>Space</kbd> play<span>·</span>
+          <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> segment<span>·</span>
+          <kbd>Y</kbd> <kbd>N</kbd> verdict
+        </p>
+      )}
+
       {isExpanded && <DetectionModal detection={detection} onClose={closeExpanded} />}
     </article>
   )
-}
+})
 
 export default DetectionCard
