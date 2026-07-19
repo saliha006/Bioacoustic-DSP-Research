@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import SpectrogramStage from './SpectrogramStage'
 import DetectionModal from './DetectionModal'
+import ReviewActions from './ReviewActions'
 import { useClipPlayer } from './useClipPlayer'
 import './DetectionCard.css'
 
@@ -98,29 +99,7 @@ const DetectionCard = forwardRef(function DetectionCard(
         stageControl={expandButton}
       />
 
-      <div className="review">
-        <p className="review-status">Is this identification correct?</p>
-        <div className="review-actions">
-          <button
-            type="button"
-            className={`review-btn yes${verdict === 'yes' ? ' active' : ''}`}
-            aria-pressed={isReviewed ? verdict === 'yes' : undefined}
-            disabled={submitting}
-            onClick={() => pick('yes')}
-          >
-            Yes
-          </button>
-          <button
-            type="button"
-            className={`review-btn no${verdict === 'no' ? ' active' : ''}`}
-            aria-pressed={isReviewed ? verdict === 'no' : undefined}
-            disabled={submitting}
-            onClick={() => pick('no')}
-          >
-            No
-          </button>
-        </div>
-      </div>
+      <ReviewActions verdict={verdict} submitting={submitting} onPick={pick} />
 
       {isTop && (
         <p className="shortcut-hint" aria-hidden="true">
@@ -130,7 +109,15 @@ const DetectionCard = forwardRef(function DetectionCard(
         </p>
       )}
 
-      {isExpanded && <DetectionModal detection={detection} onClose={closeExpanded} />}
+      {isExpanded && (
+        <DetectionModal
+          detection={detection}
+          verdict={verdict}
+          submitting={submitting}
+          onPick={pick}
+          onClose={closeExpanded}
+        />
+      )}
     </article>
   )
 })

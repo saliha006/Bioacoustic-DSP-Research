@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import SpectrogramStage from './SpectrogramStage'
+import ReviewActions from './ReviewActions'
 import { useClipPlayer } from './useClipPlayer'
 import './DetectionModal.css'
 
@@ -14,7 +15,7 @@ function CloseIcon() {
 // Enlarged view of a single detection's spectrogram. Runs its own clip player
 // (separate <audio> from the card behind it); opening the modal pauses the card,
 // and only one clip ever plays at a time, so the two never overlap.
-function DetectionModal({ detection, onClose }) {
+function DetectionModal({ detection, verdict, submitting, onPick, onClose }) {
   const player = useClipPlayer(detection)
   const panelRef = useRef(null)
   const closeButtonRef = useRef(null)
@@ -96,6 +97,8 @@ function DetectionModal({ detection, onClose }) {
         </dl>
 
         <SpectrogramStage detection={detection} player={player} />
+
+        <ReviewActions verdict={verdict} submitting={submitting} onPick={onPick} />
       </div>
     </div>
   )
