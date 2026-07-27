@@ -247,6 +247,103 @@
   stroke-linejoin: round;
 }
 
+/* Volume — vertical drag on the stage's right edge, revealed with the other
+   stage controls. `bottom` clears the expand glyph so the two never overlap,
+   however tall the stage gets. */
+.volume {
+  position: absolute;
+  top: 10px;
+  right: 7px;
+  bottom: 46px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  justify-items: center;
+  gap: 6px;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-out);
+  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.6));
+}
+
+.stage:focus-within .volume {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .stage:hover .volume {
+    opacity: 1;
+  }
+}
+
+.volume svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+/* the cone is filled; the sound arc is stroke only */
+.volume svg path:last-child {
+  fill: none;
+}
+
+/* Vertical range. writing-mode is the current way to turn a range on its side;
+   direction: rtl puts loud at the top. Capped so it stays a control, not a
+   full-height rail, in the expanded modal. */
+.volume input[type="range"] {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 12px;
+  height: 100%;
+  max-height: 130px;
+  margin: 0;
+  background: none;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.volume input[type="range"]::-webkit-slider-runnable-track {
+  width: 3px;
+  border-radius: 2px;
+  /* dark, not white: the spectrograms render on a white field, so a white track
+     disappears into them. The thumb stays white and carries the position. */
+  background: rgba(23, 23, 26, 0.42);
+}
+
+.volume input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 11px;
+  height: 11px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.volume input[type="range"]::-moz-range-track {
+  width: 3px;
+  border-radius: 2px;
+  background: rgba(23, 23, 26, 0.42);
+}
+
+.volume input[type="range"]::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.volume input[type="range"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
 /* ---- Segmented control (before / during / after) -------------------- */
 .segments {
   position: relative;

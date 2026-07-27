@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { SEGMENTS } from './useClipPlayer'
+import { SEGMENTS, getVolume, setVolume, subscribeVolume } from './useClipPlayer'
 import './SpectrogramStage.css'
 
 // Frequency axis is linear Hz up to sr/2. Current data is 48 kHz audio, so the
@@ -21,6 +21,15 @@ function PauseIcon() {
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <rect x="6" y="5" width="4" height="14" rx="1" />
       <rect x="14" y="5" width="4" height="14" rx="1" />
+    </svg>
+  )
+}
+
+function SpeakerIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" />
+      <path d="M16 9a4.5 4.5 0 0 1 0 6" />
     </svg>
   )
 }
@@ -53,6 +62,19 @@ function SpectrogramStage({ detection, player, stageControl }) {
   const durationS = Math.max(1, Math.round(detection.clipDurationS || 3))
   const timeTicks = Array.from({ length: durationS + 1 }, (_, i) => i)
   const activeIndex = SEGMENTS.findIndex((s) => s.key === segment)
+
+  // The slider is uncontrolled: the shared level is written onto the input so a
+  // drag on one card moves every other card's slider without a React render.
+  // Skip the input being dragged - it already shows the right value.
+  const volumeInputRef = useRef(null)
+  useEffect(
+    () =>
+      subscribeVolume((level) => {
+        const input = volumeInputRef.current
+        if (input && document.activeElement !== input) input.value = String(level)
+      }),
+    [],
+  )
 
   // Glass hover pill that trails the cursor across the three tabs. A self-driven
   // rAF loop writes the pill's transform straight onto the element while the
@@ -193,6 +215,25 @@ function SpectrogramStage({ detection, player, stageControl }) {
           >
             {isPlaying ? <PauseIcon /> : <PlayIcon />}
           </button>
+
+          {/* Drag up/down to set playback level. stopPropagation keeps the drag
+              from also scrubbing the stage underneath. */}
+          <div
+            className="volume"
+            onPointerDown={(event) => event.stopPropagation()}
+          >
+            <SpeakerIcon />
+            <input
+              ref={volumeInputRef}
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              defaultValue={getVolume()}
+              onChange={(event) => setVolume(Number(event.target.value))}
+              aria-label={`Volume for the ${detection.speciesCommonName} clip`}
+            />
+          </div>
 
           {stageControl}
 

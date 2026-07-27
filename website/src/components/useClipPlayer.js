@@ -6,6 +6,31 @@ export const SEGMENTS = [
   { key: 'after', label: 'After' },
 ]
 
+// One volume for the whole page: set it on any card and it applies to whatever
+// you play next, rather than every detection remembering its own level. Held
+// outside React and written straight onto the <audio> elements and the slider
+// inputs — as a controlled value it would re-render all ~70 gallery cards on
+// every drag frame, which is the stutter the hover pill already ran into.
+let volumeLevel = 1
+const volumeSubscribers = new Set()
+
+export function getVolume() {
+  return volumeLevel
+}
+
+export function setVolume(level) {
+  volumeLevel = level
+  document.querySelectorAll('audio').forEach((el) => {
+    el.volume = level
+  })
+  volumeSubscribers.forEach((notify) => notify(level))
+}
+
+export function subscribeVolume(notify) {
+  volumeSubscribers.add(notify)
+  return () => volumeSubscribers.delete(notify)
+}
+
 // Drives one spectrogram clip: play/pause, drag-to-seek, and the playhead.
 // The card and the expanded modal each mount their own instance (own <audio>),
 // so togglePlay pauses every other <audio> on the page before starting this one
@@ -48,6 +73,12 @@ export function useClipPlayer(detection) {
       audio.pause()
     }
   }
+
+  // A card mounted after the level was set (or the modal opening over one) starts
+  // at the shared level instead of full blast.
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = volumeLevel
+  }, [])
 
   // playhead runs off requestAnimationFrame while playing — the timeupdate
   // event only fires ~4x/sec, which looked choppy
