@@ -216,25 +216,6 @@ function SpectrogramStage({ detection, player, stageControl }) {
             {isPlaying ? <PauseIcon /> : <PlayIcon />}
           </button>
 
-          {/* Drag up/down to set playback level. stopPropagation keeps the drag
-              from also scrubbing the stage underneath. */}
-          <div
-            className="volume"
-            onPointerDown={(event) => event.stopPropagation()}
-          >
-            <SpeakerIcon />
-            <input
-              ref={volumeInputRef}
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              defaultValue={getVolume()}
-              onChange={(event) => setVolume(Number(event.target.value))}
-              aria-label={`Volume for the ${detection.speciesCommonName} clip`}
-            />
-          </div>
-
           {stageControl}
 
           <audio
@@ -245,6 +226,22 @@ function SpectrogramStage({ detection, player, stageControl }) {
             onPause={onPause}
             onEnded={onEnded}
             onLoadedMetadata={applyPendingSeek}
+          />
+        </div>
+
+        {/* Drag up/down to set playback level. Sits in its own gutter beside the
+            spectrogram rather than over the trace. */}
+        <div className="volume">
+          <SpeakerIcon />
+          <input
+            ref={volumeInputRef}
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            defaultValue={getVolume()}
+            onChange={(event) => setVolume(Number(event.target.value))}
+            aria-label={`Volume for the ${detection.speciesCommonName} clip`}
           />
         </div>
 

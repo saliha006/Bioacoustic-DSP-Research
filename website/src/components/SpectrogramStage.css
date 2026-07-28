@@ -1,11 +1,11 @@
 /* ---- Spectrogram figure: image with external kHz / seconds axes ----- */
 .spectrogram-figure {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr);
+  grid-template-columns: 40px minmax(0, 1fr) 20px;
   grid-template-rows: auto 16px;
   grid-template-areas:
-    "freq stage"
-    ".    time";
+    "freq stage volume"
+    ".    time  .";
   column-gap: 8px;
   row-gap: 5px;
   margin: 0;
@@ -247,30 +247,26 @@
   stroke-linejoin: round;
 }
 
-/* Volume — vertical drag on the stage's right edge, revealed with the other
-   stage controls. `bottom` clears the expand glyph so the two never overlap,
-   however tall the stage gets. */
+/* Volume — vertical drag in the gutter beside the spectrogram, revealed when the
+   figure is hovered or focused so a scrolling gallery stays quiet. The column is
+   always reserved, so fading it in never shifts the layout. */
 .volume {
-  position: absolute;
-  top: 10px;
-  right: 7px;
-  bottom: 46px;
+  grid-area: volume;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   justify-items: center;
   gap: 6px;
-  color: #fff;
+  color: var(--muted);
   opacity: 0;
   transition: opacity 0.5s var(--ease-out);
-  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.6));
 }
 
-.stage:focus-within .volume {
+.spectrogram-figure:focus-within .volume {
   opacity: 1;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .stage:hover .volume {
+  .spectrogram-figure:hover .volume {
     opacity: 1;
   }
 }
@@ -302,40 +298,55 @@
   max-height: 130px;
   margin: 0;
   background: none;
-  cursor: ns-resize;
+  cursor: pointer;
   touch-action: none;
 }
 
+/* The track fills the input's full width and paints the 3px orange line down its
+   middle, so the thumb (which centres on the track) lands on the line. Giving
+   the track itself a 3px width instead leaves the two off by a few pixels. */
 .volume input[type="range"]::-webkit-slider-runnable-track {
-  width: 3px;
-  border-radius: 2px;
-  /* dark, not white: the spectrograms render on a white field, so a white track
-     disappears into them. The thumb stays white and carries the position. */
-  background: rgba(23, 23, 26, 0.42);
+  width: 100%;
+  background: linear-gradient(
+    to right,
+    transparent calc(50% - 1.5px),
+    var(--accent) calc(50% - 1.5px),
+    var(--accent) calc(50% + 1.5px),
+    transparent calc(50% + 1.5px)
+  );
 }
 
+/* White knob on a white card, so it needs a rim and a little lift to read as a
+   cap sitting on the rail. */
 .volume input[type="range"]::-webkit-slider-thumb {
   appearance: none;
   -webkit-appearance: none;
   width: 11px;
   height: 11px;
-  border: none;
+  border: 1px solid rgba(23, 23, 26, 0.18);
   border-radius: 50%;
   background: #fff;
+  box-shadow: 0 1px 3px rgba(23, 23, 26, 0.22);
 }
 
 .volume input[type="range"]::-moz-range-track {
-  width: 3px;
-  border-radius: 2px;
-  background: rgba(23, 23, 26, 0.42);
+  width: 100%;
+  background: linear-gradient(
+    to right,
+    transparent calc(50% - 1.5px),
+    var(--accent) calc(50% - 1.5px),
+    var(--accent) calc(50% + 1.5px),
+    transparent calc(50% + 1.5px)
+  );
 }
 
 .volume input[type="range"]::-moz-range-thumb {
   width: 11px;
   height: 11px;
-  border: none;
+  border: 1px solid rgba(23, 23, 26, 0.18);
   border-radius: 50%;
   background: #fff;
+  box-shadow: 0 1px 3px rgba(23, 23, 26, 0.22);
 }
 
 .volume input[type="range"]:focus-visible {
