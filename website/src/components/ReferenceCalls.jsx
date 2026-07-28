@@ -68,12 +68,18 @@ function ReferenceCalls({ calls, speciesCommonName }) {
           const list = calls?.[c.key]
           const available = Boolean(list && list.length)
           const isActiveCat = active?.key === c.key
+          const hasAlt = Boolean(list && list.length > 1)
           const primaryPlaying = playing && isActiveCat && active.index === 0
+          const altPlaying = playing && isActiveCat && active.index === 1
+          // The active pair reads as a unit: whichever take is sounding turns
+          // orange, and its sibling turns ink-black so the two stand apart from
+          // the grey, untouched categories.
+          const primaryPaired = isActiveCat && hasAlt && !primaryPlaying
           return (
             <Fragment key={c.key}>
               <button
                 type="button"
-                className={`ref-box${primaryPlaying ? ' is-playing' : ''}`}
+                className={`ref-box${primaryPlaying ? ' is-playing' : primaryPaired ? ' is-paired' : ''}`}
                 disabled={!available}
                 aria-pressed={primaryPlaying}
                 title={available ? tooltip(c.label, list[0]) : `No reference ${c.key} yet`}
@@ -89,11 +95,11 @@ function ReferenceCalls({ calls, speciesCommonName }) {
 
               {/* The alternate take, offered next to its category once that
                   category is the active one and it actually has a second clip. */}
-              {isActiveCat && list.length > 1 && (
+              {isActiveCat && hasAlt && (
                 <button
                   type="button"
-                  className={`ref-box${playing && active.index === 1 ? ' is-playing' : ''}`}
-                  aria-pressed={playing && active.index === 1}
+                  className={`ref-box${altPlaying ? ' is-playing' : ' is-paired'}`}
+                  aria-pressed={altPlaying}
                   title={tooltip(`Alternative ${c.label.toLowerCase()}`, list[1])}
                   onClick={() => play(c.key, 1)}
                 >
