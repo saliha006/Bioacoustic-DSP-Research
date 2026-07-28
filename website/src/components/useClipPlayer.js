@@ -31,6 +31,10 @@ export function subscribeVolume(notify) {
   return () => volumeSubscribers.delete(notify)
 }
 
+function clampRatio(clientX, rect) {
+  return Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
+}
+
 // Drives one spectrogram clip: play/pause, drag-to-seek, and the playhead.
 // The card and the expanded modal each mount their own instance (own <audio>),
 // so togglePlay pauses every other <audio> on the page before starting this one
@@ -38,14 +42,26 @@ export function subscribeVolume(notify) {
 export function useClipPlayer(detection) {
   const [segment, setSegment] = useState('during')
   const [isPlaying, setIsPlaying] = useState(false)
-  const [progress, setProgress] = useState(0)
   const [isScrubbing, setIsScrubbing] = useState(false)
+  const [hasPosition, setHasPosition] = useState(false)
   const audioRef = useRef(null)
   const stageRef = useRef(null)
+  const trackRef = useRef(null)
   const pendingSeekRef = useRef(null)
+
+  // The playhead's position is written straight onto the track element instead of
+  // going through state. Holding it in state re-rendered the whole card on every
+  // frame of a drag, which is what made the line feel like it was lagging behind
+  // the cursor. Same reason the segment hover pill runs off refs.
+  const scrubRef = useRef({ active: false, rect: null, x: 0, ratio: 0 })
 
   const currentUrl = detection[`${segment}ClipUrl`]
   const activeSegmentLabel = SEGMENTS.find((s) => s.key === segment)?.label
+
+  function paintPlayhead(ratio) {
+    const track = trackRef.current
+    if (track) track.style.transform = `translateX(${ratio * 100}%)`
+  }
 
   function selectSegment(key) {
     if (key === segment) return
@@ -56,7 +72,8 @@ export function useClipPlayer(detection) {
     }
     pendingSeekRef.current = null
     setIsPlaying(false)
-    setProgress(0)
+    setHasPosition(false)
+    paintPlayhead(0)
     setSegment(key)
   }
 
@@ -80,29 +97,37 @@ export function useClipPlayer(detection) {
     if (audioRef.current) audioRef.current.volume = volumeLevel
   }, [])
 
-  // playhead runs off requestAnimationFrame while playing — the timeupdate
-  // event only fires ~4x/sec, which looked choppy
+  // playhead runs off requestAnimationFrame — the timeupdate event only fires
+  // ~4x/sec, which looked choppy. The same loop covers a drag: while scrubbing it
+  // follows the last pointer position instead of the audio clock.
   useEffect(() => {
-    if (!isPlaying) return
+    if (!isPlaying && !isScrubbing) return
     let frame
     const tick = () => {
       const audio = audioRef.current
-      if (audio && Number.isFinite(audio.duration) && audio.duration > 0) {
-        setProgress(audio.currentTime / audio.duration)
+      const scrub = scrubRef.current
+      if (scrub.active) {
+        const ratio = clampRatio(scrub.x, scrub.rect)
+        // Coalesce to one seek per frame. Setting currentTime on every
+        // pointermove queues a media seek per event, and that backlog is what
+        // stalled the drag.
+        if (ratio !== scrub.ratio) {
+          scrub.ratio = ratio
+          paintPlayhead(ratio)
+          seekAudio(ratio)
+        }
+      } else if (audio && Number.isFinite(audio.duration) && audio.duration > 0) {
+        paintPlayhead(audio.currentTime / audio.duration)
       }
       frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [isPlaying])
+  }, [isPlaying, isScrubbing])
 
-  function seekToClientX(clientX) {
-    const stage = stageRef.current
+  function seekAudio(ratio) {
     const audio = audioRef.current
-    if (!stage || !audio) return
-    const rect = stage.getBoundingClientRect()
-    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
-    setProgress(ratio)
+    if (!audio) return
     if (Number.isFinite(audio.duration) && audio.duration > 0) {
       // stop a hair short of the end so scrubbing to the far edge doesn't
       // trip 'ended' and bounce back to the start
@@ -115,16 +140,28 @@ export function useClipPlayer(detection) {
   }
 
   function startScrub(event) {
-    setIsScrubbing(true)
+    const stage = stageRef.current
+    if (!stage) return
     event.currentTarget.setPointerCapture(event.pointerId)
-    seekToClientX(event.clientX)
+    // The rect is measured once per drag. Reading it inside the move handler
+    // forced a layout on every event.
+    const rect = stage.getBoundingClientRect()
+    const ratio = clampRatio(event.clientX, rect)
+    scrubRef.current = { active: true, rect, x: event.clientX, ratio }
+    // paint on pointer-down so the line is under the cursor before the loop starts
+    paintPlayhead(ratio)
+    seekAudio(ratio)
+    setHasPosition(true)
+    setIsScrubbing(true)
   }
 
   function moveScrub(event) {
-    if (isScrubbing) seekToClientX(event.clientX)
+    if (scrubRef.current.active) scrubRef.current.x = event.clientX
   }
 
   function endScrub() {
+    if (!scrubRef.current.active) return
+    scrubRef.current.active = false
     setIsScrubbing(false)
   }
 
@@ -140,10 +177,11 @@ export function useClipPlayer(detection) {
     segment,
     selectSegment,
     isPlaying,
-    progress,
     isScrubbing,
+    hasPosition,
     audioRef,
     stageRef,
+    trackRef,
     currentUrl,
     activeSegmentLabel,
     togglePlay,
@@ -155,7 +193,8 @@ export function useClipPlayer(detection) {
     onPause: () => setIsPlaying(false),
     onEnded: () => {
       setIsPlaying(false)
-      setProgress(0)
+      setHasPosition(false)
+      paintPlayhead(0)
     },
   }
 }

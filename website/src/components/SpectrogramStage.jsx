@@ -43,10 +43,11 @@ function SpectrogramStage({ detection, player, stageControl }) {
     segment,
     selectSegment,
     isPlaying,
-    progress,
     isScrubbing,
+    hasPosition,
     audioRef,
     stageRef,
+    trackRef,
     currentUrl,
     activeSegmentLabel,
     togglePlay,
@@ -195,14 +196,12 @@ function SpectrogramStage({ detection, player, stageControl }) {
           <div className="stage-scrim" aria-hidden="true" />
 
           {/* Full-width track shifted by transform so the playhead rides the
-              GPU — animating `left` per frame would relayout every card. */}
-          <div
-            className="playhead-track"
-            style={{ transform: `translateX(${progress * 100}%)` }}
-            aria-hidden="true"
-          >
+              GPU — animating `left` per frame would relayout every card. The
+              transform is set by the player's rAF loop, not rendered here, so a
+              drag doesn't re-render the card on every frame. */}
+          <div className="playhead-track" ref={trackRef} aria-hidden="true">
             <div
-              className={`playhead${isPlaying || progress > 0 || isScrubbing ? ' is-active' : ''}`}
+              className={`playhead${isPlaying || hasPosition || isScrubbing ? ' is-active' : ''}`}
             />
           </div>
 
