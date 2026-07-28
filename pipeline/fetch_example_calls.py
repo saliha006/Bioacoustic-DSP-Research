@@ -41,6 +41,14 @@ CATEGORY_TO_XC_TYPE = {"song": "song", "call": "call", "warning": "alarm call"}
 # Quality ratings good enough to use as a reference, best first.
 GOOD_QUALITY = ["A", "B"]
 
+# BirdNET sometimes emits an older genus than the checklist Xeno-canto follows,
+# so an exact-name search finds nothing. Map the BirdNET scientific name to the
+# one Xeno-canto indexes. We still store the BirdNET name (that's what the
+# detections rows use); this only steers the search. Add entries as they turn up.
+XC_NAME_SYNONYMS = {
+    "Corvus monedula": "Coloeus monedula",  # Eurasian Jackdaw, split into Coloeus
+}
+
 
 def xc_get(query_tags, api_key):
     """One Xeno-canto v3 search. query_tags is the space-separated tag string."""
@@ -90,7 +98,8 @@ def full_url(maybe_relative):
 
 def pick_recordings(scientific_name, xc_type, api_key, max_len, want):
     """Search strict-to-loose until we have `want` recordings, best first."""
-    genus, _, species = scientific_name.partition(" ")
+    query_name = XC_NAME_SYNONYMS.get(scientific_name, scientific_name)
+    genus, _, species = query_name.partition(" ")
     base = f'grp:birds gen:{genus} sp:{species} type:"{xc_type}"'
     # Each step relaxes one constraint: quality, then region, then length.
     searches = [
