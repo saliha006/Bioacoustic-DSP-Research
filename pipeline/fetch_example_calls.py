@@ -23,6 +23,7 @@ Usage:
 import argparse
 import json
 import os
+import sys
 import time
 import urllib.parse
 import urllib.request
@@ -150,6 +151,10 @@ def build_supabase_client():
 
 
 def main():
+    # Recordist names carry accents and non-Latin characters, and the Windows
+    # console is cp1252 by default, so the progress prints would crash on them.
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true",
                         help="Search Xeno-canto and print picks, but don't download/upload/insert")
