@@ -92,18 +92,18 @@
    rides the GPU compositor and costs next to nothing even on low-end hardware.
    The three bars run at slightly different speeds so they don't move in lockstep. */
 .ref-box.is-playing .ref-bars i {
-  animation: ref-bar-a 0.7s ease-in-out infinite;
+  animation: ref-bar-a 0.78s ease-in-out infinite;
 }
 
 .ref-box.is-playing .ref-bars i:nth-child(2) {
   animation-name: ref-bar-b;
-  animation-duration: 0.82s;
+  animation-duration: 0.92s;
   animation-delay: 0.1s;
 }
 
 .ref-box.is-playing .ref-bars i:nth-child(3) {
   animation-name: ref-bar-c;
-  animation-duration: 0.75s;
+  animation-duration: 0.84s;
   animation-delay: 0.18s;
 }
 
@@ -160,14 +160,14 @@
    respects reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   .ref-box.is-playing .ref-bars i {
-    animation-duration: 0.7s !important;
+    animation-duration: 0.78s !important;
     animation-iteration-count: infinite !important;
   }
   .ref-box.is-playing .ref-bars i:nth-child(2) {
-    animation-duration: 0.82s !important;
+    animation-duration: 0.92s !important;
   }
   .ref-box.is-playing .ref-bars i:nth-child(3) {
-    animation-duration: 0.75s !important;
+    animation-duration: 0.84s !important;
   }
 }
 
