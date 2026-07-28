@@ -55,15 +55,15 @@
   color: var(--ink);
 }
 
-/* Little equalizer bars — collapsed until the box is playing, then they slide
+/* Little equalizer bars, collapsed until the box is playing, then they slide
    open and bounce in the accent orange (the same "this is sounding" cue as the
    playhead). */
 .ref-bars {
   display: inline-flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 2px;
   width: 0;
-  height: 16px;
+  height: 12px;
   overflow: hidden;
   opacity: 0;
   /* Width/margin snap on the class toggle (one reflow, not per-frame); only the
@@ -72,17 +72,19 @@
 }
 
 .ref-box.is-playing .ref-bars {
-  width: 13px;
-  margin-left: 6px;
+  width: 10px;
+  margin-left: 5px;
   opacity: 1;
 }
 
 .ref-bars i {
-  width: 3px;
+  width: 2px;
   height: 100%;
   background: var(--accent);
-  transform-origin: bottom;
-  transform: scaleY(0.4);
+  /* scale about the middle so each bar pinches toward a centre line and opens
+     back out, like a volume equalizer, rather than growing up from a baseline */
+  transform-origin: center;
+  transform: scaleY(0.5);
 }
 
 /* Only the box that's actually sounding runs the equalizer loop, so the ~700
@@ -106,7 +108,7 @@
 @keyframes ref-bar {
   0%,
   100% {
-    transform: scaleY(0.2);
+    transform: scaleY(0.12);
   }
   50% {
     transform: scaleY(1);
