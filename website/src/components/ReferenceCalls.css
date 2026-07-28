@@ -63,7 +63,7 @@
   align-items: flex-end;
   gap: 2px;
   width: 0;
-  height: 10px;
+  height: 16px;
   overflow: hidden;
   opacity: 0;
   /* Width/margin snap on the class toggle (one reflow, not per-frame); only the
@@ -72,13 +72,13 @@
 }
 
 .ref-box.is-playing .ref-bars {
-  width: 12px;
-  margin-left: 5px;
+  width: 13px;
+  margin-left: 6px;
   opacity: 1;
 }
 
 .ref-bars i {
-  width: 2px;
+  width: 3px;
   height: 100%;
   background: var(--accent);
   transform-origin: bottom;
@@ -106,7 +106,7 @@
 @keyframes ref-bar {
   0%,
   100% {
-    transform: scaleY(0.35);
+    transform: scaleY(0.2);
   }
   50% {
     transform: scaleY(1);
