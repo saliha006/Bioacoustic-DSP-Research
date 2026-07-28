@@ -55,6 +55,12 @@ export function useClipPlayer(detection) {
   // the cursor. Same reason the segment hover pill runs off refs.
   const scrubRef = useRef({ active: false, rect: null, x: 0, ratio: 0 })
 
+  // audio.currentTime only updates in coarse chunks, so painting it directly
+  // makes the playhead hop between positions during playback. We anchor to the
+  // last value we saw and glide on the frame clock until currentTime advances
+  // again. ct = -1 forces a re-anchor on the first frame of each play.
+  const playAnchorRef = useRef({ ct: -1, at: 0 })
+
   const currentUrl = detection[`${segment}ClipUrl`]
   const activeSegmentLabel = SEGMENTS.find((s) => s.key === segment)?.label
 
@@ -103,7 +109,8 @@ export function useClipPlayer(detection) {
   useEffect(() => {
     if (!isPlaying && !isScrubbing) return
     let frame
-    const tick = () => {
+    playAnchorRef.current.ct = -1 // fresh anchor each time the loop (re)starts
+    const tick = (ts) => {
       const audio = audioRef.current
       const scrub = scrubRef.current
       if (scrub.active) {
@@ -117,7 +124,17 @@ export function useClipPlayer(detection) {
           seekAudio(ratio)
         }
       } else if (audio && Number.isFinite(audio.duration) && audio.duration > 0) {
-        paintPlayhead(audio.currentTime / audio.duration)
+        // Re-anchor whenever the media clock ticks forward, otherwise extend the
+        // last known position with real elapsed time so the line moves every
+        // frame. The elapsed term is capped so a buffering stall parks the line
+        // instead of letting it run away past the audio.
+        const anchor = playAnchorRef.current
+        if (audio.currentTime !== anchor.ct) {
+          anchor.ct = audio.currentTime
+          anchor.at = ts
+        }
+        const position = Math.min(anchor.ct + Math.min((ts - anchor.at) / 1000, 0.5), audio.duration)
+        paintPlayhead(position / audio.duration)
       }
       frame = requestAnimationFrame(tick)
     }
