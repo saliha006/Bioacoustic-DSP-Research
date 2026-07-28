@@ -97,6 +97,7 @@ const DetectionCard = forwardRef(function DetectionCard(
         detection={detection}
         player={player}
         stageControl={expandButton}
+        isTop={isTop}
       />
 
       <ReviewActions verdict={verdict} submitting={submitting} onPick={pick} />

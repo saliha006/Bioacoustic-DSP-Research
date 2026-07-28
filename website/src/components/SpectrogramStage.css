@@ -265,6 +265,13 @@
   opacity: 1;
 }
 
+/* The top card is the one the keyboard shortcuts drive, so its slider stays up
+   instead of waiting for a hover. One visible control on the page is enough to
+   find it, and the level it sets is shared by every card anyway. */
+.spectrogram-figure.volume-pinned .volume {
+  opacity: 1;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .spectrogram-figure:hover .volume {
     opacity: 1;

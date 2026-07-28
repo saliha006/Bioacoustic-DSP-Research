@@ -38,7 +38,7 @@ function SpeakerIcon() {
 // stage, the playhead and the segment tabs. Shared by the card and its expanded
 // modal so both behave identically; `player` is a useClipPlayer instance and
 // `stageControl` is an optional overlay (the card passes its expand button).
-function SpectrogramStage({ detection, player, stageControl }) {
+function SpectrogramStage({ detection, player, stageControl, isTop = false }) {
   const {
     segment,
     selectSegment,
@@ -170,7 +170,7 @@ function SpectrogramStage({ detection, player, stageControl }) {
 
   return (
     <>
-      <figure className="spectrogram-figure">
+      <figure className={`spectrogram-figure${isTop ? ' volume-pinned' : ''}`}>
         <div className="freq-axis" aria-hidden="true">
           {FREQ_TICKS.map((k, i) => (
             <span key={k} style={{ top: `${(1 - k / FREQ_MAX_KHZ) * 100}%` }}>
