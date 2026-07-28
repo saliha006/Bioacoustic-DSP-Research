@@ -1,0 +1,133 @@
+.reference-calls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.ref-boxes {
+  display: flex;
+  gap: 6px;
+}
+
+.ref-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: 5px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink-body);
+  font: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color 0.15s var(--ease-out), color 0.15s var(--ease-out),
+    transform 0.12s var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ref-box:not(:disabled):hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+}
+
+.ref-box:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.ref-box:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ref-box.is-playing {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+/* Little equalizer bars — collapsed until the box is playing, then they slide
+   open and bounce in the accent orange (the same "this is sounding" cue as the
+   playhead). */
+.ref-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 0;
+  height: 10px;
+  overflow: hidden;
+  opacity: 0;
+  /* Width/margin snap on the class toggle (one reflow, not per-frame); only the
+     fade is transitioned so no layout property animates. */
+  transition: opacity 0.18s var(--ease-out);
+}
+
+.ref-box.is-playing .ref-bars {
+  width: 12px;
+  margin-left: 5px;
+  opacity: 1;
+}
+
+.ref-bars i {
+  width: 2px;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: bottom;
+  animation: ref-bar 0.9s var(--ease-out) infinite;
+}
+
+.ref-bars i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.ref-bars i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes ref-bar {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.ref-credit {
+  min-height: 1.1em;
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+.ref-credit a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ref-credit a:hover {
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ref-bars i {
+    animation: none;
+    transform: scaleY(0.7);
+  }
+}
+
+/* On a narrow card, drop the boxes to the left under the name rather than
+   crushing the heading onto one cramped line. */
+@media (max-width: 480px) {
+  .reference-calls {
+    align-items: flex-start;
+  }
+  .ref-credit {
+    text-align: left;
+  }
+}

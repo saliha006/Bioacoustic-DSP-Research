@@ -22,6 +22,10 @@ create table example_calls (
   species_scientific_name text not null,
   category text not null check (category in ('song', 'call', 'warning')),
   audio_url text not null,
+  recordist text,
+  license text,
+  source_url text,
+  rank smallint not null default 1,
   created_at timestamptz not null default now()
 );
 

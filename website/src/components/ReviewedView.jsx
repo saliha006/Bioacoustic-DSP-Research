@@ -11,7 +11,7 @@ function BackIcon() {
 
 // The full-page revisit screen: one detection per row so the reviewer can scroll
 // back through everything they've judged and flip a verdict if they got one wrong.
-function ReviewedView({ items, onChangeVerdict, onBack }) {
+function ReviewedView({ items, exampleCalls, onChangeVerdict, onBack }) {
   return (
     <div className="reviewed-view">
       <div className="reviewed-view-head">
@@ -30,6 +30,7 @@ function ReviewedView({ items, onChangeVerdict, onBack }) {
           <DetectionCard
             key={detection.id}
             detection={detection}
+            calls={exampleCalls?.get(detection.speciesScientificName) || null}
             verdict={verdict}
             onVerdict={onChangeVerdict}
             index={i}

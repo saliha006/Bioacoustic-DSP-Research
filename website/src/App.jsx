@@ -26,11 +26,39 @@ function mapDetection(row) {
   }
 }
 
+// Group the flat example_calls rows into one entry per species, each category
+// holding its clips best-first (rank 1 = best, 2 = alternate), so a card can
+// look up its species' references in one hit.
+function buildExampleCalls(rows) {
+  const map = new Map()
+  for (const row of rows) {
+    const species = map.get(row.species_scientific_name) || {}
+    const clips = species[row.category] || []
+    clips.push({
+      url: row.audio_url,
+      recordist: row.recordist,
+      license: row.license,
+      sourceUrl: row.source_url,
+      rank: row.rank ?? 1,
+    })
+    species[row.category] = clips
+    map.set(row.species_scientific_name, species)
+  }
+  for (const species of map.values()) {
+    for (const clips of Object.values(species)) {
+      clips.sort((a, b) => a.rank - b.rank)
+    }
+  }
+  return map
+}
+
 function App() {
   const [session, setSession] = useState(null)
   const [authReady, setAuthReady] = useState(false)
   const [detections, setDetections] = useState([])
   const [reviews, setReviews] = useState(() => new Map()) // detectionId -> 'yes' | 'no'
+  // scientific name -> { song?, call?, warning? }, each { url, recordist, license, sourceUrl }
+  const [exampleCalls, setExampleCalls] = useState(() => new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [toast, setToast] = useState(null)
@@ -65,13 +93,17 @@ function App() {
     Promise.all([
       supabase.from('detections').select('*').order('created_at', { ascending: true }),
       supabase.from('reviews').select('detection_id, verdict').eq('reviewer_id', session.user.id),
-    ]).then(([detectionsRes, reviewsRes]) => {
-      const err = detectionsRes.error || reviewsRes.error
+      supabase
+        .from('example_calls')
+        .select('species_scientific_name, category, audio_url, recordist, license, source_url, rank'),
+    ]).then(([detectionsRes, reviewsRes, callsRes]) => {
+      const err = detectionsRes.error || reviewsRes.error || callsRes.error
       if (err) {
         setError(err.message)
       } else {
         setDetections(detectionsRes.data.map(mapDetection))
         setReviews(new Map(reviewsRes.data.map((r) => [r.detection_id, r.verdict])))
+        setExampleCalls(buildExampleCalls(callsRes.data))
       }
       setLoading(false)
     })
@@ -245,6 +277,7 @@ function App() {
       <div className="page">
         <ReviewedView
           items={reviewed}
+          exampleCalls={exampleCalls}
           onChangeVerdict={changeVerdict}
           onBack={() => setView('queue')}
         />
@@ -308,6 +341,7 @@ function App() {
               key={detection.id}
               ref={i === 0 ? topCardRef : undefined}
               detection={detection}
+              calls={exampleCalls.get(detection.speciesScientificName) || null}
               onVerdict={handleReview}
               index={i}
               isTop={i === 0}

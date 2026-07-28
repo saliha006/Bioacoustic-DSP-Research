@@ -2,6 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import SpectrogramStage from './SpectrogramStage'
 import DetectionModal from './DetectionModal'
 import ReviewActions from './ReviewActions'
+import ReferenceCalls from './ReferenceCalls'
 import { useClipPlayer } from './useClipPlayer'
 import './DetectionCard.css'
 
@@ -14,7 +15,7 @@ function ExpandIcon() {
 }
 
 const DetectionCard = forwardRef(function DetectionCard(
-  { detection, verdict = null, onVerdict, index = 0, isTop = false, onExpandChange },
+  { detection, calls = null, verdict = null, onVerdict, index = 0, isTop = false, onExpandChange },
   ref,
 ) {
   // In the queue there's no verdict yet; in the reviewed view the card carries
@@ -74,8 +75,11 @@ const DetectionCard = forwardRef(function DetectionCard(
   return (
     <article className="detection-card" style={{ '--i': index }}>
       <div className="card-heading">
-        <h2>{detection.speciesCommonName}</h2>
-        <p className="scientific-name">{detection.speciesScientificName}</p>
+        <div className="card-heading-text">
+          <h2>{detection.speciesCommonName}</h2>
+          <p className="scientific-name">{detection.speciesScientificName}</p>
+        </div>
+        <ReferenceCalls calls={calls} speciesCommonName={detection.speciesCommonName} />
       </div>
 
       <dl className="stats">
