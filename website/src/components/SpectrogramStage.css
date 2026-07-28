@@ -252,9 +252,12 @@
    always reserved, so fading it in never shifts the layout. */
 .volume {
   grid-area: volume;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* centre the icon + slider as a group against the spectrogram's height (this
+     column spans the stage row), rather than letting them ride the top edge */
+  justify-content: center;
   gap: 6px;
   color: var(--muted);
   opacity: 0;
