@@ -92,27 +92,46 @@
    rides the GPU compositor and costs next to nothing even on low-end hardware.
    The three bars run at slightly different speeds so they don't move in lockstep. */
 .ref-box.is-playing .ref-bars i {
-  animation: ref-bar 0.5s ease-in-out infinite;
+  animation: ref-bar-a 0.7s ease-in-out infinite;
 }
 
 .ref-box.is-playing .ref-bars i:nth-child(2) {
-  animation-duration: 0.62s;
-  animation-delay: 0.08s;
+  animation-name: ref-bar-b;
+  animation-duration: 0.82s;
+  animation-delay: 0.1s;
 }
 
 .ref-box.is-playing .ref-bars i:nth-child(3) {
-  animation-duration: 0.55s;
-  animation-delay: 0.16s;
+  animation-name: ref-bar-c;
+  animation-duration: 0.75s;
+  animation-delay: 0.18s;
 }
 
-@keyframes ref-bar {
-  0%,
-  100% {
-    transform: scaleY(0.12);
-  }
-  50% {
-    transform: scaleY(1);
-  }
+/* Three different height sequences (each loops seamlessly since 0% == 100%).
+   Paired with the three different durations, the bars rarely line up, so it
+   reads as an organic equalizer rather than an obvious loop. */
+@keyframes ref-bar-a {
+  0% { transform: scaleY(0.25); }
+  22% { transform: scaleY(1); }
+  44% { transform: scaleY(0.4); }
+  68% { transform: scaleY(0.85); }
+  100% { transform: scaleY(0.25); }
+}
+
+@keyframes ref-bar-b {
+  0% { transform: scaleY(0.6); }
+  28% { transform: scaleY(0.18); }
+  52% { transform: scaleY(1); }
+  78% { transform: scaleY(0.45); }
+  100% { transform: scaleY(0.6); }
+}
+
+@keyframes ref-bar-c {
+  0% { transform: scaleY(0.45); }
+  18% { transform: scaleY(0.9); }
+  47% { transform: scaleY(0.2); }
+  73% { transform: scaleY(1); }
+  100% { transform: scaleY(0.45); }
 }
 
 .ref-credit {
@@ -141,14 +160,14 @@
    respects reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   .ref-box.is-playing .ref-bars i {
-    animation-duration: 0.5s !important;
+    animation-duration: 0.7s !important;
     animation-iteration-count: infinite !important;
   }
   .ref-box.is-playing .ref-bars i:nth-child(2) {
-    animation-duration: 0.62s !important;
+    animation-duration: 0.82s !important;
   }
   .ref-box.is-playing .ref-bars i:nth-child(3) {
-    animation-duration: 0.55s !important;
+    animation-duration: 0.75s !important;
   }
 }
 
