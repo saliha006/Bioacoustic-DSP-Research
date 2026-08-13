@@ -103,9 +103,81 @@ def build_supabase_client():
     return create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_KEY"])
 
 
+def recording_meta_from_name(recording_path):
+    """Pull the calendar date out of an AudioMoth filename and keep the full
+    original name. Files look like DEVICEID_YYYYMMDD_HHMMSS.WAV (04 batch) or an
+    already-stripped YYYYMMDD_HHMMSS_LAT_LON.wav. Returns
+    (recording_date_iso or None, original filename)."""
+    name = Path(recording_path).name
+    for token in Path(recording_path).stem.split("_"):
+        if len(token) == 8 and token.isdigit():
+            return f"{token[:4]}-{token[4:6]}-{token[6:8]}", name
+    return None, name
+
+
+def emit_detection(sound_file, sr, *, recording_id, species_scientific, species_common,
+                   mean_confidence, capture_count, start_s, end_s,
+                   site, recording_date, source_recording,
+                   r2, bucket, public_url_base, supabase, dry_run):
+    """Cut the before/during/after clips + 3 spectrograms for one detection,
+    upload them to R2, and insert the metadata row (with full provenance) into
+    Supabase. Shared by the single-recording path and the 04 site-day driver."""
+    during = cut_clip(sound_file, sr, start_s, end_s)
+    before = cut_clip(sound_file, sr, start_s - CLIP_PADDING_S, start_s)
+    after = cut_clip(sound_file, sr, end_s, end_s + CLIP_PADDING_S)
+    during_spectrogram = make_spectrogram_png(during, sr)
+    before_spectrogram = make_spectrogram_png(before, sr)
+    after_spectrogram = make_spectrogram_png(after, sr)
+
+    if dry_run:
+        print(f"  [dry-run] {species_common} ({species_scientific}) "
+              f"@ {start_s:.1f}-{end_s:.1f}s in {source_recording}: 3 clips + 3 spectrograms")
+        return
+
+    slug = species_scientific.lower().replace(" ", "-")
+    base_path = f"{recording_id}/{slug}"
+
+    before_url = upload_to_r2(r2, bucket, public_url_base, f"{base_path}/before.ogg",
+                               clip_to_ogg_bytes(before, sr), "audio/ogg")
+    during_url = upload_to_r2(r2, bucket, public_url_base, f"{base_path}/during.ogg",
+                               clip_to_ogg_bytes(during, sr), "audio/ogg")
+    after_url = upload_to_r2(r2, bucket, public_url_base, f"{base_path}/after.ogg",
+                              clip_to_ogg_bytes(after, sr), "audio/ogg")
+    spectrogram_url = upload_to_r2(r2, bucket, public_url_base, f"{base_path}/spec-during.png",
+                                    during_spectrogram, "image/png")
+    before_spectrogram_url = upload_to_r2(r2, bucket, public_url_base,
+                                           f"{base_path}/spec-before.png",
+                                           before_spectrogram, "image/png")
+    after_spectrogram_url = upload_to_r2(r2, bucket, public_url_base,
+                                          f"{base_path}/spec-after.png",
+                                          after_spectrogram, "image/png")
+
+    supabase.table("detections").insert({
+        "recording_id": recording_id,
+        "species_scientific_name": species_scientific,
+        "species_common_name": species_common,
+        "mean_confidence": mean_confidence,
+        "capture_count": capture_count,
+        "clip_duration_s": end_s - start_s,
+        "before_clip_url": before_url,
+        "during_clip_url": during_url,
+        "after_clip_url": after_url,
+        "spectrogram_url": spectrogram_url,
+        "before_spectrogram_url": before_spectrogram_url,
+        "after_spectrogram_url": after_spectrogram_url,
+        "start_s": start_s,
+        "end_s": end_s,
+        "site": site,
+        "recording_date": recording_date,
+        "source_recording": source_recording,
+        "review_status": "pending",
+    }).execute()
+
+
 def process_recording(recording_path, results_csv, summary_csv,
-                       confidence_threshold, limit, dry_run):
+                       confidence_threshold, limit, dry_run, site=None):
     recording_id = recording_id_from_path(recording_path)
+    recording_date, source_recording = recording_meta_from_name(recording_path)
     summary = pd.read_csv(summary_csv)
     results = pd.read_csv(results_csv)
 
@@ -168,54 +240,22 @@ def process_recording(recording_path, results_csv, summary_csv,
             detection = (padded if not padded.empty else matches).sample(1).iloc[0]
             start_s, end_s = float(detection["Start (s)"]), float(detection["End (s)"])
 
-            during = cut_clip(f, sr, start_s, end_s)
-            before = cut_clip(f, sr, start_s - CLIP_PADDING_S, start_s)
-            after = cut_clip(f, sr, end_s, end_s + CLIP_PADDING_S)
-            during_spectrogram = make_spectrogram_png(during, sr)
-            before_spectrogram = make_spectrogram_png(before, sr)
-            after_spectrogram = make_spectrogram_png(after, sr)
-
-            if dry_run:
-                print(f"  [dry-run] {species_common} ({species_scientific}): "
-                      f"before={len(before) / sr:.1f}s during={len(during) / sr:.1f}s "
-                      f"after={len(after) / sr:.1f}s, 3 spectrograms")
-                continue
-
-            slug = species_scientific.lower().replace(" ", "-")
-            base_path = f"{recording_id}/{slug}"
-
-            before_url = upload_to_r2(r2, bucket, public_url_base, f"{base_path}/before.ogg",
-                                       clip_to_ogg_bytes(before, sr), "audio/ogg")
-            during_url = upload_to_r2(r2, bucket, public_url_base, f"{base_path}/during.ogg",
-                                       clip_to_ogg_bytes(during, sr), "audio/ogg")
-            after_url = upload_to_r2(r2, bucket, public_url_base, f"{base_path}/after.ogg",
-                                      clip_to_ogg_bytes(after, sr), "audio/ogg")
-            spectrogram_url = upload_to_r2(r2, bucket, public_url_base, f"{base_path}/spec-during.png",
-                                            during_spectrogram, "image/png")
-            before_spectrogram_url = upload_to_r2(r2, bucket, public_url_base,
-                                                   f"{base_path}/spec-before.png",
-                                                   before_spectrogram, "image/png")
-            after_spectrogram_url = upload_to_r2(r2, bucket, public_url_base,
-                                                  f"{base_path}/spec-after.png",
-                                                  after_spectrogram, "image/png")
-
-            supabase.table("detections").insert({
-                "recording_id": recording_id,
-                "species_scientific_name": species_scientific,
-                "species_common_name": species_common,
-                "mean_confidence": mean_confidence,
-                "capture_count": capture_count,
-                "clip_duration_s": end_s - start_s,
-                "before_clip_url": before_url,
-                "during_clip_url": during_url,
-                "after_clip_url": after_url,
-                "spectrogram_url": spectrogram_url,
-                "before_spectrogram_url": before_spectrogram_url,
-                "after_spectrogram_url": after_spectrogram_url,
-                "review_status": "pending",
-            }).execute()
-
-            print(f"  uploaded {species_common} ({species_scientific})")
+            emit_detection(
+                f, sr,
+                recording_id=recording_id,
+                species_scientific=species_scientific,
+                species_common=species_common,
+                mean_confidence=mean_confidence,
+                capture_count=capture_count,
+                start_s=start_s, end_s=end_s,
+                site=site,
+                recording_date=recording_date,
+                source_recording=source_recording,
+                r2=r2, bucket=bucket, public_url_base=public_url_base,
+                supabase=supabase, dry_run=dry_run,
+            )
+            if not dry_run:
+                print(f"  uploaded {species_common} ({species_scientific})")
 
 
 def main():
@@ -229,10 +269,12 @@ def main():
                          help="Process only the first N reviewable species (small-subset testing)")
     parser.add_argument("--dry-run", action="store_true",
                          help="Compute clips/spectrograms but skip the R2 upload / Supabase insert")
+    parser.add_argument("--site", default=None,
+                         help="Site label to store as provenance (e.g. 'Site 4')")
     args = parser.parse_args()
 
     process_recording(args.recording, args.results, args.summary,
-                       args.confidence_threshold, args.limit, args.dry_run)
+                       args.confidence_threshold, args.limit, args.dry_run, args.site)
 
 
 if __name__ == "__main__":
